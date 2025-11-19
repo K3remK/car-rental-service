@@ -1,8 +1,22 @@
 package com.kerem.carrental.model;
 
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+
+@Entity
+@Table(name = "LOCATION")
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Location {
 
-    private String zipCode;
-    private String name;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long code;
+    @Column(length = 50, nullable = false)
+    private String locationName;
 
 }
