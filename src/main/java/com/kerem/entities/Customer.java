@@ -1,4 +1,4 @@
-package com.kerem.carrental.model;
+package com.kerem.entities;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -16,8 +16,9 @@ import java.util.List;
 @AllArgsConstructor
 public class Customer {
 
+    // TODO: move the validation annotations to the insert and update dto objects
+
     @Id
-    @Size(min = 11, max = 11)
     private String ssn;
 
     @Column(length = 20, nullable = false)
@@ -25,14 +26,17 @@ public class Customer {
     @Column(length = 20, nullable = false)
     private String lastName;
 
-    @Email(message = "Email format is wrong!")
     private String email;
-    @Column(length = 15, nullable = false)
-    @Size(min = 6, max = 15)
+    @Column(length = 15, nullable = false, unique = true)
+
     private String phoneNumber;
     private String address;
+    @Column(length = 20, nullable = false, unique = true)
     private String drivingLicenseNumber;
 
-    @OneToMany
+    // TODO: this will create issues when reservations requested from CustomerController since both customer object itself and the reservations they made
+    // TODO: will contain customer_ssn
+    // SOLUTION: make the customer_ssn null and don't return it in the ReservationDTO for CustomerController
+    @OneToMany(mappedBy = "customer")
     List<Reservation> reservations;
 }

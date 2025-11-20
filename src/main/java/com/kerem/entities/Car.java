@@ -1,4 +1,4 @@
-package com.kerem.carrental.model;
+package com.kerem.entities;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Car {
 
+    // TODO: maybe this can be uuid
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private String barcode;

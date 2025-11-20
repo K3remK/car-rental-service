@@ -1,4 +1,4 @@
-package com.kerem.carrental.model;
+package com.kerem.entities;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
