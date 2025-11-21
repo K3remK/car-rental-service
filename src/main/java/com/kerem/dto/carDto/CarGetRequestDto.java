@@ -35,6 +35,5 @@ public class CarGetRequestDto {
 
     private LocationGetRequestDto location;
 
-    // TODO: maybe this transition from db to enum may require a special mapping
     private Car.CarStatus status;
 }

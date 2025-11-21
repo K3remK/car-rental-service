@@ -1,6 +1,7 @@
 package com.kerem.dto.reservationDto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.kerem.dto.carDto.CarGetRequestDto;
 import com.kerem.dto.customerDto.CustomerGetRequestDto;
 import com.kerem.dto.extraServiceDto.ExtraServiceGetRequestDto;
 import com.kerem.entities.Customer;
@@ -30,18 +31,20 @@ public class ReservationGetRequestDto {
 
     private Date dropOffDateAndTime;
 
-    // TODO: maybe this transition from db to enum may require a special mapping
     private Reservation.Status status;
 
     private Location pickUpLocation;
 
     private Location dropOffLocation;
 
+    private Double totalAmount;
+
     // TODO: will be problematic since when the request comes from the customer controller since both of
     // TODO: the objects will contain customer_ssn
     // TODO: maybe make the this customer object null when the request is coming from the customer controller
-    // TODO: if so set the @Json
     private CustomerGetRequestDto customer;
+
+    private CarGetRequestDto car;
 
     private List<ExtraServiceGetRequestDto> extras;
 }

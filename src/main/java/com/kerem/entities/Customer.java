@@ -1,5 +1,6 @@
 package com.kerem.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
@@ -15,8 +16,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Customer {
-
-    // TODO: move the validation annotations to the insert and update dto objects
 
     @Id
     private String ssn;
@@ -38,5 +37,6 @@ public class Customer {
     // TODO: will contain customer_ssn
     // SOLUTION: make the customer_ssn null and don't return it in the ReservationDTO for CustomerController
     @OneToMany(mappedBy = "customer")
+    @JsonIgnore   // this will prevent automatic serialization
     List<Reservation> reservations;
 }

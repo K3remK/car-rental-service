@@ -1,6 +1,5 @@
 package com.kerem.starter;
 
-import com.kerem.repository.CustomerRepository;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
