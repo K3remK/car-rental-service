@@ -2,13 +2,21 @@ package com.kerem.dto.reservationDto;
 
 import com.kerem.dto.locationDto.LocationGetRequestDto;
 import com.kerem.entities.Car;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.UUID;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class RentedCarGetRequestDto {
 
     // Car info
-    private String barcode;
+    private UUID barcode;
 
     private String brand;
 
@@ -21,11 +29,11 @@ public class RentedCarGetRequestDto {
     // Reservation info
     private Long reservationNumber;
 
-    private Date dropOffDateAndTime;
+    private LocalDateTime dropOffDateAndTime;
 
-    private LocationGetRequestDto location;
+    private LocationGetRequestDto dropOffLocation;
 
-    private Integer reservationDayCount;
+    private Long reservationDayCount;
 
     private String customerName;
 }

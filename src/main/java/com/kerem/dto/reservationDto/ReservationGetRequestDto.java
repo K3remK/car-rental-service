@@ -13,6 +13,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -25,11 +26,11 @@ public class ReservationGetRequestDto {
 
     private String reservationNumber;
 
-    private Date creationDate;
+    private LocalDateTime creationDate;
 
-    private Date pickUpDateAndTime;
+    private LocalDateTime pickUpDateAndTime;
 
-    private Date dropOffDateAndTime;
+    private LocalDateTime dropOffDateAndTime;
 
     private Reservation.Status status;
 

@@ -14,7 +14,7 @@ import java.util.UUID;
 public interface IReservationService {
 
     ReservationGetRequestDto saveReservation(ReservationInsertRequestDto reservationInsertRequestDto);
-    List<RentedCarGetRequestDto> getAllReservedCars();
+    List<RentedCarGetRequestDto> getAllCurrentlyReservedCars();
     Boolean addExtraServiceToReservation(Long reservationNumber, Long extraServiceId);
     Boolean returnCar(Long reservationNumber);
     Boolean cancelReservation(Long reservationNumber);

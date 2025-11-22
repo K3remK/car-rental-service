@@ -2,8 +2,10 @@ package com.kerem.mapper;
 
 import com.kerem.dto.carDto.CarGetRequestDto;
 import com.kerem.dto.carDto.CarInsertRequestDto;
+import com.kerem.dto.reservationDto.RentedCarGetRequestDto;
 import com.kerem.entities.Car;
 import org.mapstruct.Mapper;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = "spring")
@@ -13,4 +15,5 @@ public interface CarMapper {
 
     Car map(CarInsertRequestDto carInsertRequestDto);
     CarGetRequestDto map(Car car);
+    void mapCarToRentedCarDto(Car source, @MappingTarget RentedCarGetRequestDto destination);
 }

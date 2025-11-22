@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -20,8 +21,8 @@ public class Reservation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reservationNumber;
     private Date creationDate;
-    private Date pickUpDateAndTime;
-    private Date dropOffDateAndTime;
+    private LocalDateTime pickUpDateAndTime;
+    private LocalDateTime dropOffDateAndTime;
 
     @Column(length = 10, nullable = false)
     @Enumerated(EnumType.STRING)
