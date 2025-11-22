@@ -7,6 +7,6 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class LocationInsertRequestDto {
+public class LocationDtoIU {
     private String locationName;
 }

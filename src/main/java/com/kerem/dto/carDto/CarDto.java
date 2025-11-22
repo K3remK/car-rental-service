@@ -1,9 +1,7 @@
 package com.kerem.dto.carDto;
 
-import com.kerem.dto.locationDto.LocationGetRequestDto;
+import com.kerem.dto.locationDto.LocationDto;
 import com.kerem.entities.Car;
-import com.kerem.entities.Location;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CarGetRequestDto {
+public class CarDto {
 
     private String barcode;
 
@@ -33,7 +31,7 @@ public class CarGetRequestDto {
 
     private String categoryDescription;
 
-    private LocationGetRequestDto location;
+    private LocationDto location;
 
     private Car.CarStatus status;
 }

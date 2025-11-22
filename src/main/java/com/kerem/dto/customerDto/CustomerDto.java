@@ -1,6 +1,6 @@
 package com.kerem.dto.customerDto;
 
-import com.kerem.dto.reservationDto.ReservationGetRequestDto;
+import com.kerem.dto.reservationDto.ReservationDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,7 +10,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CustomerGetRequestDto {
+public class CustomerDto {
 
     private String ssn;
 
@@ -26,5 +26,5 @@ public class CustomerGetRequestDto {
 
     private String drivingLicenseNumber;
 
-    List<ReservationGetRequestDto> reservations;
+    List<ReservationDto> reservations;
 }

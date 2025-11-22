@@ -1,9 +1,9 @@
 package com.kerem.controller.impl;
 
 import com.kerem.controller.IReservationController;
-import com.kerem.dto.reservationDto.RentedCarGetRequestDto;
-import com.kerem.dto.reservationDto.ReservationGetRequestDto;
-import com.kerem.dto.reservationDto.ReservationInsertRequestDto;
+import com.kerem.dto.reservationDto.RentedCarDto;
+import com.kerem.dto.reservationDto.ReservationDto;
+import com.kerem.dto.reservationDto.ReservationDtoIU;
 import com.kerem.service.IReservationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,15 +20,15 @@ public class ReservationControllerImpl implements IReservationController {
 
     @PostMapping("/save")
     @Override
-    public ResponseEntity<ReservationGetRequestDto> saveReservation(ReservationInsertRequestDto reservationInsertRequestDto) {
+    public ResponseEntity<ReservationDto> saveReservation(ReservationDtoIU reservationDtoIU) {
         return null;
     }
 
     @GetMapping(path = "/list/currentlyRentedCars")
     @Override
-    public ResponseEntity<List<RentedCarGetRequestDto>> getAllCurrentlyReservedCars() {
+    public ResponseEntity<List<RentedCarDto>> getAllCurrentlyReservedCars() {
 
-        List<RentedCarGetRequestDto> res = reservationService.getAllCurrentlyReservedCars();
+        List<RentedCarDto> res = reservationService.getAllCurrentlyReservedCars();
 
         if (res.isEmpty()) {
             // TODO: throw not found exception
@@ -48,7 +48,13 @@ public class ReservationControllerImpl implements IReservationController {
     @PostMapping(path = "/update/returnCar/{reservationNumber}")
     @Override
     public ResponseEntity<Boolean> returnCar(@PathVariable(name = "reservationNumber") Long reservationNumber) {
-        return null;
+        Boolean res = reservationService.returnCar(reservationNumber);
+
+        if (!res) {
+            ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(res);
     }
 
     @PostMapping(path = "/update/cancel/{reservationNumber}")

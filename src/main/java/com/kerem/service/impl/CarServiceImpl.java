@@ -1,6 +1,7 @@
 package com.kerem.service.impl;
 
-import com.kerem.dto.carDto.CarGetRequestDto;
+import com.kerem.dto.carDto.CarDto;
+import com.kerem.dto.carDto.CarDtoIU;
 import com.kerem.entities.Car;
 import com.kerem.mapper.CarMapper;
 import com.kerem.repository.CarRepository;
@@ -9,11 +10,10 @@ import com.kerem.service.ICarService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,19 +25,19 @@ public class CarServiceImpl implements ICarService {
     private final CarMapper carMapper;
 
     @Override
-    public List<CarGetRequestDto> findCarsWithParams(String carCategory,
-                                                     String carBrand,
-                                                     String transmissionType,
-                                                     String status,
-                                                     Double minPrice,
-                                                     Double maxPrice,
-                                                     String licensePlateNumber,
-                                                     Long maxMileage,
-                                                     String model,
-                                                     Date pickUpDate,
-                                                     Date dropOffDate,
-                                                     Integer numberOfSeats,
-                                                     Long pickUpLocationCode) {
+    public List<CarDto> findCarsWithParams(String carCategory,
+                                           String carBrand,
+                                           String transmissionType,
+                                           String status,
+                                           Double minPrice,
+                                           Double maxPrice,
+                                           String licensePlateNumber,
+                                           Long maxMileage,
+                                           String model,
+                                           Date pickUpDate,
+                                           Date dropOffDate,
+                                           Integer numberOfSeats,
+                                           Long pickUpLocationCode) {
 
         Specification<Car> spec = Specification.<Car>unrestricted()
                 .and(CarSpecification.isAvailable(pickUpDate, dropOffDate))
@@ -61,10 +61,31 @@ public class CarServiceImpl implements ICarService {
 
         // 4. Map to DTOs
         return foundCars.stream()
-                .map(carMapper::map)
+                .map(carMapper::mapGet)
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public CarDto saveCar(CarDtoIU newCar) {
+        Car car = carMapper.map(newCar);
+        Car dbCar = carRepository.save(car);
+
+        return carMapper.mapGet(dbCar);
+    }
+
+    @Override
+    public CarDto updateCar(UUID barcode, CarDtoIU carDtoIU) {
+        Car car = carRepository.findById(barcode).orElse(null);
+
+        if (car == null) {
+            // TODO: throw not found exception
+        }
+
+        carMapper.map(carDtoIU, car);
+        carRepository.save(car);
+
+        return carMapper.mapGet(car);
+    }
 
 
     @Override

@@ -1,8 +1,8 @@
 package com.kerem.mapper;
 
-import com.kerem.dto.reservationDto.RentedCarGetRequestDto;
-import com.kerem.dto.reservationDto.ReservationGetRequestDto;
-import com.kerem.dto.reservationDto.ReservationInsertRequestDto;
+import com.kerem.dto.reservationDto.RentedCarDto;
+import com.kerem.dto.reservationDto.ReservationDto;
+import com.kerem.dto.reservationDto.ReservationDtoIU;
 import com.kerem.entities.Reservation;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
@@ -13,7 +13,7 @@ public interface ReservationMapper {
 
     ReservationMapper INSTANCE = Mappers.getMapper(ReservationMapper.class);
 
-    Reservation map(ReservationInsertRequestDto reservationInsertRequestDto);
-    ReservationGetRequestDto map(Reservation reservation);
-    void mapReservationToRentedCarDto(Reservation source, @MappingTarget RentedCarGetRequestDto destination);
+    Reservation map(ReservationDtoIU reservationDtoIU);
+    ReservationDto map(Reservation reservation);
+    void mapReservationToRentedCarDto(Reservation source, @MappingTarget RentedCarDto destination);
 }

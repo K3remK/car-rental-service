@@ -1,8 +1,7 @@
 package com.kerem.service;
 
-import com.kerem.dto.carDto.CarGetRequestDto;
-import com.kerem.entities.Car;
-import com.kerem.entities.Location;
+import com.kerem.dto.carDto.CarDto;
+import com.kerem.dto.carDto.CarDtoIU;
 
 import java.util.Date;
 import java.util.List;
@@ -10,7 +9,7 @@ import java.util.UUID;
 
 public interface ICarService {
 
-    List<CarGetRequestDto> findCarsWithParams(
+    List<CarDto> findCarsWithParams(
             String carCategory,
             String carBrand,
             String transmissionType,
@@ -26,5 +25,7 @@ public interface ICarService {
             Long locationCode
     );
 
+    CarDto saveCar(CarDtoIU newCar);
+    CarDto updateCar(UUID barcode, CarDtoIU updatedCar);
     Boolean deleteCar(String barcode);
 }

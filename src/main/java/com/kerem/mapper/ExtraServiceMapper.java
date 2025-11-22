@@ -1,6 +1,6 @@
 package com.kerem.mapper;
 
-import com.kerem.dto.extraServiceDto.ExtraServiceGetRequestDto;
+import com.kerem.dto.extraServiceDto.ExtraServiceDto;
 import com.kerem.entities.ExtraService;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
@@ -10,5 +10,5 @@ public interface ExtraServiceMapper {
 
     ExtraServiceMapper INSTANCE = Mappers.getMapper(ExtraServiceMapper.class);
 
-    ExtraServiceGetRequestDto map(ExtraService service);
+    ExtraServiceDto map(ExtraService service);
 }

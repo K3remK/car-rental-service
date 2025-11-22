@@ -1,15 +1,13 @@
 package com.kerem.controller;
 
-import com.kerem.dto.carDto.CarGetRequestDto;
-import com.kerem.entities.Car;
-import com.kerem.entities.Location;
+import com.kerem.dto.carDto.CarDto;
 import org.springframework.http.ResponseEntity;
 
 import java.util.Date;
 import java.util.List;
 
 public interface ICarController {
-    ResponseEntity<List<CarGetRequestDto>> findCarsWithParams(
+    ResponseEntity<List<CarDto>> findCarsWithParams(
             String carCategory,
             String carBrand,
             String transmissionType,
@@ -25,7 +23,7 @@ public interface ICarController {
             Long locationCode
     );
 
-    ResponseEntity<List<CarGetRequestDto>> searchAvailableCars(
+    ResponseEntity<List<CarDto>> searchAvailableCars(
             String carCategory,
             String transmissionType,
             Double minPrice,

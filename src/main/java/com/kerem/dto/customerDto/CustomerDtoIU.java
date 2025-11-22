@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CustomerInsertRequestDto {
+public class CustomerDtoIU {
 
     // TODO: maybe insert and update dto's can be merged as one object
 

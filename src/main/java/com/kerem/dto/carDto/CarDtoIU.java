@@ -1,6 +1,6 @@
 package com.kerem.dto.carDto;
 
-import com.kerem.dto.locationDto.LocationGetRequestDto;
+import com.kerem.dto.locationDto.LocationDto;
 import com.kerem.entities.Car;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CarInsertRequestDto {
+public class CarDtoIU {
 
     private String licensePlateNumber;
 
@@ -30,7 +30,7 @@ public class CarInsertRequestDto {
     private String categoryDescription;
 
     // TODO: not sure about the type maybe this should only be location name or location code
-    private LocationGetRequestDto location;
+    private LocationDto location;
 
     private Car.CarStatus status;
 }

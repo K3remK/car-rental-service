@@ -1,8 +1,7 @@
 package com.kerem.controller.impl;
 
 import com.kerem.controller.ICarController;
-import com.kerem.dto.carDto.CarGetRequestDto;
-import com.kerem.entities.Car;
+import com.kerem.dto.carDto.CarDto;
 import com.kerem.service.ICarService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -40,7 +39,7 @@ public class CarController implements ICarController {
 
     @GetMapping(path = "/list/with-params")
     @Override
-    public ResponseEntity<List<CarGetRequestDto>> findCarsWithParams(
+    public ResponseEntity<List<CarDto>> findCarsWithParams(
             @RequestParam(name = "carCategory", required = false) String carCategory,
             @RequestParam(name = "brand", required = false) String brand,
             @RequestParam(name = "transmissionType", required = false) String transmissionType,
@@ -55,7 +54,7 @@ public class CarController implements ICarController {
             @RequestParam(name = "numberOfSeats", required = false) Integer numberOfSeats,
             @RequestParam(name = "pickUpLocationCode", required = false) Long pickUpLocationCode
     ) {
-        List<CarGetRequestDto> foundCars = carService.findCarsWithParams(
+        List<CarDto> foundCars = carService.findCarsWithParams(
                 carCategory,
                 brand,
                 transmissionType,
@@ -80,7 +79,7 @@ public class CarController implements ICarController {
 
     @GetMapping(path = "/list/available")
     @Override
-    public ResponseEntity<List<CarGetRequestDto>> searchAvailableCars(
+    public ResponseEntity<List<CarDto>> searchAvailableCars(
             @RequestParam(name = "carCategory", required = false) String carCategory,
             @RequestParam(name = "transmissionType", required = false) String transmissionType,
             @RequestParam(name = "minPrice", required = false) Double minPrice,
@@ -90,7 +89,7 @@ public class CarController implements ICarController {
             @RequestParam(name = "numberOfSeats", required = false) Integer numberOfSeats,
             @RequestParam(name = "pickUpLocationCode", required = true) Long pickUpLocationCode
     ) {
-        List<CarGetRequestDto> foundCars = carService.findCarsWithParams(
+        List<CarDto> foundCars = carService.findCarsWithParams(
                 carCategory,
                 null,
                 transmissionType,
