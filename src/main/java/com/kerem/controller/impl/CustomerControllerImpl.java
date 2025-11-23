@@ -26,29 +26,4 @@ public class CustomerControllerImpl implements ICustomerController {
     public Customer getCustomerBySsn(@PathVariable(name = "ssn") String ssn) {
         return customerService.getCustomerBySsn(ssn);
     }
-
-    @GetMapping(path = "/customers-list")
-    @Override
-    public List<Customer> getAllCustomers() {
-        return customerService.getAllCustomers();
-    }
-
-    @PostMapping(path = "/save")
-    @Override
-    public Customer saveCustomer(@RequestBody @Valid Customer newCustomer) {
-        return customerService.saveCustomer(newCustomer);
-    }
-
-    @PutMapping(path = "/update/{ssn}")
-    @Override
-    public Customer updateCustomer(@PathVariable(name = "ssn") String ssn,
-                                   @RequestBody @Valid Customer updatedCustomer) {
-        return customerService.updateCustomer(ssn, updatedCustomer);
-    }
-
-    @DeleteMapping(path = "/delete/{ssn}")
-    @Override
-    public boolean deleteCustomer(@PathVariable(name = "ssn") String ssn) {
-        return customerService.deleteCustomer(ssn);
-    }
 }

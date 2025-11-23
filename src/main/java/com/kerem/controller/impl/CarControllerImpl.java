@@ -3,16 +3,14 @@ package com.kerem.controller.impl;
 import com.kerem.controller.ICarController;
 import com.kerem.dto.carDto.CarDto;
 import com.kerem.service.ICarService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 /*
 * Code,Constant,Meaning,When to use
@@ -30,13 +28,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping(path = "/rentacar/api/cars")
-public class CarController implements ICarController {
+@RequiredArgsConstructor
+public class CarControllerImpl implements ICarController {
 
     private final ICarService carService;
-
-    public CarController(ICarService carService) {
-        this.carService = carService;
-    }
 
     @GetMapping(path = "/list/with-params")
     @Override
@@ -111,5 +106,11 @@ public class CarController implements ICarController {
         }
 
         return ResponseEntity.ok(foundCars);
+    }
+
+    @DeleteMapping(path = "/delete/{barcode}")
+    @Override
+    public ResponseEntity<Boolean> deleteCar(@PathVariable(name = "barcode") UUID barcode) {
+        return ResponseEntity.ok(carService.deleteCar(barcode));
     }
 }

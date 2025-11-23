@@ -107,7 +107,7 @@ public class ReservationServiceImpl implements IReservationService {
     }
 
     @Override
-    public Boolean addExtraServiceToReservation(Long reservationNumber, Long extraServiceId) {
+    public Boolean addExtraServiceToReservation(String reservationNumber, Long extraServiceId) {
         Reservation reservation = reservationRepository.findById(reservationNumber).orElse(null);
         ExtraService extraService = extraServiceService.findById(extraServiceId);
         if (reservation == null) {
@@ -125,7 +125,7 @@ public class ReservationServiceImpl implements IReservationService {
     }
 
     @Override
-    public Boolean returnCar(Long reservationNumber) {
+    public Boolean returnCar(String reservationNumber) {
 
         Reservation reservation = reservationRepository.findById(reservationNumber).orElse(null);
 
@@ -155,7 +155,7 @@ public class ReservationServiceImpl implements IReservationService {
     }
 
     @Override
-    public Boolean cancelReservation(Long reservationNumber) {
+    public Boolean cancelReservation(String reservationNumber) {
         Reservation foundReservation = reservationRepository.findById(reservationNumber).orElse(null);
         if (foundReservation == null) {
             // TODO: throw not found exception
@@ -168,10 +168,16 @@ public class ReservationServiceImpl implements IReservationService {
     }
 
     @Override
-    public Boolean deleteReservation(Long reservationNumber) {
-        //TODO: do not use Cascade.DELETE
+    public Boolean deleteReservation(String reservationNumber) {
+        Reservation reservation = reservationRepository.findById(reservationNumber).orElse(null);
 
-        return null;
+        if (reservation == null) {
+            // TODO: throw not found exception
+        }
+
+        reservationRepository.delete(reservation);
+
+        return true;
     }
 
     private Long calculateDaysInBetween(LocalDateTime startDate, LocalDateTime endDate) {

@@ -7,9 +7,12 @@ import com.kerem.mapper.CarMapper;
 import com.kerem.repository.CarRepository;
 import com.kerem.repository.specification.CarSpecification;
 import com.kerem.service.ICarService;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.NotAcceptableStatusException;
 
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -73,9 +76,7 @@ public class CarServiceImpl implements ICarService {
                 .and(CarSpecification.hasId(id))
                 .and(CarSpecification.isAvailable(pickUpDateAndTime, dropOffDateAndTime));
 
-        List<Car> foundCars = carRepository.findAll(spec);
-
-        return !foundCars.isEmpty();
+        return carRepository.exists(spec);
     }
 
     @Override
@@ -85,14 +86,6 @@ public class CarServiceImpl implements ICarService {
             // TODO: throw not found exception
         }
         return foundCar;
-    }
-
-    @Override
-    public CarDto saveCar(CarDtoIU newCar) {
-        Car car = carMapper.map(newCar);
-        Car dbCar = carRepository.save(car);
-
-        return carMapper.mapGet(dbCar);
     }
 
     @Override
@@ -109,9 +102,30 @@ public class CarServiceImpl implements ICarService {
         return carMapper.mapGet(car);
     }
 
-
     @Override
-    public Boolean deleteCar(String barcode) {
-        return null;
+    public Boolean deleteCar(UUID barcode) {
+
+       Car car = carRepository.findById(barcode).orElse(null);
+
+       if (car == null) {
+           // TODO: throw not found exception
+           throw new EntityNotFoundException("Car not found! Barcode:" + barcode);
+       }
+
+       Specification<Car> spec = Specification.<Car>unrestricted()
+               .and(CarSpecification.hasId(barcode))
+               .and(CarSpecification.hasBeenUsedForAnyReservation());
+
+       List<Car> foundCars = carRepository.findAll(spec);
+
+       if  (foundCars.contains(car)) {
+           // TODO: throw not acceptable exception
+           throw new NotAcceptableStatusException("Car has been used for a reservation! Barcode: " + barcode);
+       }
+
+       carRepository.delete(car);
+
+
+        return true;
     }
 }

@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 public interface ICarController {
     ResponseEntity<List<CarDto>> findCarsWithParams(
@@ -34,4 +35,7 @@ public interface ICarController {
             Integer numberOfSeats,
             Long locationCode
     );
+
+    ResponseEntity<Boolean> deleteCar(UUID barcode);
+
 }

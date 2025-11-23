@@ -27,10 +27,8 @@ public interface ICarService {
             Long locationCode
     );
 
-    Boolean isAvailable(UUID id, LocalDateTime pickUpDateAndTime, LocalDateTime dropOffDateAndTime);
-
-    Car findCarById(UUID id);
-    CarDto saveCar(CarDtoIU newCar);
+    Boolean isAvailable(UUID barcode, LocalDateTime pickUpDateAndTime, LocalDateTime dropOffDateAndTime);
+    Car findCarById(UUID barcode);
     CarDto updateCar(UUID barcode, CarDtoIU updatedCar);
-    Boolean deleteCar(String barcode);
+    Boolean deleteCar(UUID barcode);
 }

@@ -43,7 +43,7 @@ public class CarSpecification {
             Root<Reservation> reservation = subquery.from(Reservation.class);
 
             // select the Car ID from the reservation table
-            subquery.select(reservation.get("car").get("id"));
+            subquery.select(reservation.get("car").get("barcode"));
 
             // This is the overlap condition
             // A reservation overlaps if:
@@ -59,7 +59,7 @@ public class CarSpecification {
             subquery.where(criteriaBuilder.and(overlap, activeStatus));
 
             // Main query: returns cars whose ID in NOT in the list of busy cars
-            return criteriaBuilder.not(root.get("id").in(subquery));
+            return criteriaBuilder.not(root.get("barcode").in(subquery));
         });
     }
 
@@ -94,6 +94,20 @@ public class CarSpecification {
             }
             return criteriaBuilder.greaterThanOrEqualTo(root.get("numberOfSeats"), numberOfSeats);
         }));
+    }
+
+    public static Specification<Car> hasBeenUsedForAnyReservation() {
+        return ((root, query, criteriaBuilder) -> {
+
+            Subquery<UUID> subquery = query.subquery(UUID.class);
+            Root<Reservation> reservation = subquery.from(Reservation.class);
+
+            subquery.select(reservation.get("car").get("barcode"));
+            subquery.where(criteriaBuilder.equal(reservation.get("car").get("barcode"), root.get("barcode")));
+
+
+            return criteriaBuilder.exists(subquery);
+        });
     }
 
     public static Specification<Car> hasPickUpLocation(Long locationCode) {
@@ -153,12 +167,12 @@ public class CarSpecification {
         }));
     }
 
-    public static Specification<Car> hasId(UUID id) {
+    public static Specification<Car> hasId(UUID barcode) {
         return ((root, query, criteriaBuilder) -> {
-            if (id == null) {
+            if (barcode == null) {
                 return null;
             }
-            return criteriaBuilder.equal(root.get("barcode"), id);
+            return criteriaBuilder.equal(root.get("barcode"), barcode);
         });
     }
 }

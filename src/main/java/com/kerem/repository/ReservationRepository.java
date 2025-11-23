@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-public interface ReservationRepository extends JpaRepository<Reservation, Long> {
+public interface ReservationRepository extends JpaRepository<Reservation, String> {
 
     @Query(value = "SELECT r FROM Reservation r WHERE r.pickUpDateAndTime <= :date AND r.dropOffDateAndTime >= :date AND r.status = 'ACTIVE'")
     List<Reservation> getActiveReservationsOn(LocalDateTime date);

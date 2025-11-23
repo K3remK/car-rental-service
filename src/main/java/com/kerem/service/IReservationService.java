@@ -11,8 +11,8 @@ public interface IReservationService {
 
     ReservationDto saveReservation(ReservationDtoIU reservationDtoIU);
     List<RentedCarDto> getAllCurrentlyReservedCars();
-    Boolean addExtraServiceToReservation(Long reservationNumber, Long extraServiceId);
-    Boolean returnCar(Long reservationNumber);
-    Boolean cancelReservation(Long reservationNumber);
-    Boolean deleteReservation(Long reservationNumber);
+    Boolean addExtraServiceToReservation(String reservationNumber, Long extraServiceId);
+    Boolean returnCar(String reservationNumber);
+    Boolean cancelReservation(String reservationNumber);
+    Boolean deleteReservation(String reservationNumber);
 }

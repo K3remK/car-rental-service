@@ -40,14 +40,14 @@ public class ReservationControllerImpl implements IReservationController {
 
     @PutMapping(path = "/update/addExtraService/{reservationNumber}")
     @Override
-    public ResponseEntity<Boolean> addExtraServiceToReservation(@PathVariable(name = "reservationNumber") Long reservationNumber,
+    public ResponseEntity<Boolean> addExtraServiceToReservation(@PathVariable(name = "reservationNumber") String reservationNumber,
                                                                 @RequestParam(name = "extraServiceId") Long extraServiceId) {
         return null;
     }
 
     @PostMapping(path = "/update/returnCar/{reservationNumber}")
     @Override
-    public ResponseEntity<Boolean> returnCar(@PathVariable(name = "reservationNumber") Long reservationNumber) {
+    public ResponseEntity<Boolean> returnCar(@PathVariable(name = "reservationNumber") String reservationNumber) {
         Boolean res = reservationService.returnCar(reservationNumber);
 
         if (!res) {
@@ -59,13 +59,13 @@ public class ReservationControllerImpl implements IReservationController {
 
     @PostMapping(path = "/update/cancel/{reservationNumber}")
     @Override
-    public ResponseEntity<Boolean> cancelReservation(@PathVariable(name = "reservationNumber") Long reservationNumber) {
-        return null;
+    public ResponseEntity<Boolean> cancelReservation(@PathVariable(name = "reservationNumber") String reservationNumber) {
+        return ResponseEntity.ok().body(reservationService.cancelReservation(reservationNumber));
     }
 
     @DeleteMapping("/delete/{reservationNumber}")
     @Override
-    public ResponseEntity<Boolean> deleteReservation(@PathVariable(name = "reservationNumber") Long reservationNumber) {
-        return null;
+    public ResponseEntity<Boolean> deleteReservation(@PathVariable(name = "reservationNumber") String reservationNumber) {
+        return ResponseEntity.ok().body(reservationService.deleteReservation(reservationNumber));
     }
 }

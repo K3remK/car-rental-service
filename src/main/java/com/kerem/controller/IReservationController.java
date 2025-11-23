@@ -11,8 +11,8 @@ public interface IReservationController {
 
     ResponseEntity<ReservationDto> saveReservation(ReservationDtoIU reservationDtoIU);
     ResponseEntity<List<RentedCarDto>> getAllCurrentlyReservedCars();
-    ResponseEntity<Boolean> addExtraServiceToReservation(Long reservationNumber, Long extraServiceId);
-    ResponseEntity<Boolean> returnCar(Long reservationNumber);
-    ResponseEntity<Boolean> cancelReservation(Long reservationNumber);
-    ResponseEntity<Boolean> deleteReservation(Long reservationNumber);
+    ResponseEntity<Boolean> addExtraServiceToReservation(String reservationNumber, Long extraServiceId);
+    ResponseEntity<Boolean> returnCar(String reservationNumber);
+    ResponseEntity<Boolean> cancelReservation(String reservationNumber);
+    ResponseEntity<Boolean> deleteReservation(String reservationNumber);
 }
