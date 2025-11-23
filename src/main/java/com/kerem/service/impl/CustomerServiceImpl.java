@@ -3,22 +3,25 @@ package com.kerem.service.impl;
 import com.kerem.entities.Customer;
 import com.kerem.repository.CustomerRepository;
 import com.kerem.service.ICustomerService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class CustomerServiceImpl implements ICustomerService {
 
     private final CustomerRepository customerRepository;
 
-    public CustomerServiceImpl(CustomerRepository customerRepository) {
-        this.customerRepository = customerRepository;
-    }
-
     @Override
     public Customer getCustomerBySsn(String ssn) {
-        return customerRepository.findById(ssn).orElse(null);
+
+        Customer cust = customerRepository.findById(ssn).orElse(null);
+
+        if (cust == null); // TODO: throw new not found exception;
+
+        return cust;
     }
 
     @Override

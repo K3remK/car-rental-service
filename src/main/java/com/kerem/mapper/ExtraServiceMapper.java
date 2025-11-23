@@ -11,4 +11,5 @@ public interface ExtraServiceMapper {
     ExtraServiceMapper INSTANCE = Mappers.getMapper(ExtraServiceMapper.class);
 
     ExtraServiceDto map(ExtraService service);
+    ExtraService map(ExtraServiceDto serviceDto);
 }

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -49,8 +50,8 @@ public class CarController implements ICarController {
             @RequestParam(name = "licensePlate", required = false) String licensePlate,
             @RequestParam(name = "maxMileage", required = false) Long maxMileage,
             @RequestParam(name = "model", required = false) String model,
-            @RequestParam(name = "pickUpDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date pickUpDate,
-            @RequestParam(name = "dropOffDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date dropOffDate,
+            @RequestParam(name = "pickUpDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDateTime pickUpDate,
+            @RequestParam(name = "dropOffDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDateTime dropOffDate,
             @RequestParam(name = "numberOfSeats", required = false) Integer numberOfSeats,
             @RequestParam(name = "pickUpLocationCode", required = false) Long pickUpLocationCode
     ) {
@@ -84,8 +85,8 @@ public class CarController implements ICarController {
             @RequestParam(name = "transmissionType", required = false) String transmissionType,
             @RequestParam(name = "minPrice", required = false) Double minPrice,
             @RequestParam(name = "maxPrice", required = false) Double maxPrice,
-            @RequestParam(name = "pickUpDate", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") Date pickUpDate,
-            @RequestParam(name = "dropOffDate", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") Date dropOffDate,
+            @RequestParam(name = "pickUpDate", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDateTime pickUpDate,
+            @RequestParam(name = "dropOffDate", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDateTime dropOffDate,
             @RequestParam(name = "numberOfSeats", required = false) Integer numberOfSeats,
             @RequestParam(name = "pickUpLocationCode", required = true) Long pickUpLocationCode
     ) {

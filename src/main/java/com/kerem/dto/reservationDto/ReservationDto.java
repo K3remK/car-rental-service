@@ -17,19 +17,13 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-// so that when this dto is requested from customer it will not include the customer attribute since it should be null
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ReservationDto {
 
     private String reservationNumber;
 
-    private LocalDateTime creationDate;
-
     private LocalDateTime pickUpDateAndTime;
 
     private LocalDateTime dropOffDateAndTime;
-
-    private Reservation.Status status;
 
     private Location pickUpLocation;
 
@@ -37,12 +31,7 @@ public class ReservationDto {
 
     private Double totalAmount;
 
-    // TODO: will be problematic since when the request comes from the customer controller since both of
-    // TODO: the objects will contain customer_ssn
-    // TODO: maybe make the this customer object null when the request is coming from the customer controller
-    private CustomerDto customer;
+    private String customerSsn;
 
-    private CarDto car;
-
-    private List<ExtraServiceDto> extras;
+    private String customerName;
 }

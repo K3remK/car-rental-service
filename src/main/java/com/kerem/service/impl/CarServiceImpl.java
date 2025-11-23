@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -24,6 +25,7 @@ public class CarServiceImpl implements ICarService {
     private final CarRepository carRepository;
     private final CarMapper carMapper;
 
+    // TODO: change Date to LocalDateTime
     @Override
     public List<CarDto> findCarsWithParams(String carCategory,
                                            String carBrand,
@@ -34,8 +36,8 @@ public class CarServiceImpl implements ICarService {
                                            String licensePlateNumber,
                                            Long maxMileage,
                                            String model,
-                                           Date pickUpDate,
-                                           Date dropOffDate,
+                                           LocalDateTime pickUpDate,
+                                           LocalDateTime dropOffDate,
                                            Integer numberOfSeats,
                                            Long pickUpLocationCode) {
 
@@ -63,6 +65,26 @@ public class CarServiceImpl implements ICarService {
         return foundCars.stream()
                 .map(carMapper::mapGet)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Boolean isAvailable(UUID id, LocalDateTime pickUpDateAndTime, LocalDateTime dropOffDateAndTime) {
+        Specification<Car> spec = Specification.<Car>unrestricted()
+                .and(CarSpecification.hasId(id))
+                .and(CarSpecification.isAvailable(pickUpDateAndTime, dropOffDateAndTime));
+
+        List<Car> foundCars = carRepository.findAll(spec);
+
+        return !foundCars.isEmpty();
+    }
+
+    @Override
+    public Car findCarById(UUID id) {
+        Car foundCar = carRepository.findById(id).orElse(null);
+        if (foundCar == null) {
+            // TODO: throw not found exception
+        }
+        return foundCar;
     }
 
     @Override

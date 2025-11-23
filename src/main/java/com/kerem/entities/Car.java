@@ -15,8 +15,6 @@ import java.util.UUID;
 @AllArgsConstructor
 public class Car {
 
-    // TODO: learn about cascade types and uni and bi-directional mappings
-
     @Id
     @UuidGenerator
     private UUID barcode;

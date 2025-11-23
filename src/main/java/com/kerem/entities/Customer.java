@@ -33,10 +33,6 @@ public class Customer {
     @Column(length = 20, nullable = false, unique = true)
     private String drivingLicenseNumber;
 
-    // TODO: this will create issues when reservations requested from CustomerController since both customer object itself and the reservations they made
-    // TODO: will contain customer_ssn
-    // SOLUTION: make the customer_ssn null and don't return it in the ReservationDTO for CustomerController
     @OneToMany(mappedBy = "customer")
-    @JsonIgnore   // this will prevent automatic serialization
     List<Reservation> reservations;
 }

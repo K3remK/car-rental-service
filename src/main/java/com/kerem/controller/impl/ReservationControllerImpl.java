@@ -20,8 +20,8 @@ public class ReservationControllerImpl implements IReservationController {
 
     @PostMapping("/save")
     @Override
-    public ResponseEntity<ReservationDto> saveReservation(ReservationDtoIU reservationDtoIU) {
-        return null;
+    public ResponseEntity<ReservationDto> saveReservation(@RequestBody ReservationDtoIU reservationDtoIU) {
+        return ResponseEntity.ok(reservationService.saveReservation(reservationDtoIU));
     }
 
     @GetMapping(path = "/list/currentlyRentedCars")

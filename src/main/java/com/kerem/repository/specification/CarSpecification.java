@@ -7,6 +7,7 @@ import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.UUID;
 
@@ -31,7 +32,7 @@ public class CarSpecification {
         });
     }
 
-    public static Specification<Car> isAvailable(Date reqPickUp, Date reqDropOff) {
+    public static Specification<Car> isAvailable(LocalDateTime reqPickUp, LocalDateTime reqDropOff) {
         return ((root, query, criteriaBuilder) -> {
             if (reqPickUp == null || reqDropOff == null) {
                 return criteriaBuilder.conjunction();
@@ -150,5 +151,14 @@ public class CarSpecification {
 
             return criteriaBuilder.equal(root.get("licensePlateNumber"), licensePlateNumber);
         }));
+    }
+
+    public static Specification<Car> hasId(UUID id) {
+        return ((root, query, criteriaBuilder) -> {
+            if (id == null) {
+                return null;
+            }
+            return criteriaBuilder.equal(root.get("barcode"), id);
+        });
     }
 }

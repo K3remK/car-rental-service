@@ -4,9 +4,10 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.UuidGenerator;
+import org.hibernate.annotations.IdGeneratorType;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -16,11 +17,10 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Reservation {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long reservationNumber;
-    private Date creationDate;
+    @ReservationId
+    private String reservationNumber;
+    private LocalDateTime creationDate;
     private LocalDateTime pickUpDateAndTime;
     private LocalDateTime dropOffDateAndTime;
 
@@ -46,9 +46,9 @@ public class Reservation {
     @JoinColumn(name = "car_id")
     private Car car;
 
-    @OneToMany
+    @ManyToMany
     @JoinTable(name = "REF_RESERVATION_EXTRAS",
     joinColumns = @JoinColumn(name = "reservation_number"),
     inverseJoinColumns = @JoinColumn(name = "extra_service_id"))
-    private List<ExtraService> extras;
+    private List<ExtraService> extras = new ArrayList<>();
 }

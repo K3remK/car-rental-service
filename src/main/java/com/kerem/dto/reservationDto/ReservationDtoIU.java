@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -17,7 +18,7 @@ public class ReservationDtoIU {
     LocalDateTime pickUpDateAndTime;
     LocalDateTime dropOffDateAndTime;
     String customerSsn;
-    String pickUpLocationCode;
-    String dropOffLocationCode;
+    Long pickUpLocationCode;
+    Long dropOffLocationCode;
     List<Long> extraServiceIds;
 }

@@ -18,6 +18,5 @@ public class ExtraServiceDto {
 
     private Double totalPrice;
 
-    // TODO: maybe this transition from db to enum may require a special mapping
     private ExtraService.ExtraCategory category;
 }

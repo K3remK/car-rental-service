@@ -150,7 +150,7 @@ INSERT INTO RESERVATION (
 -- Car: Toyota Corolla (ID 1)
 -- Scenario: Customer returned the car last month. This car should be IN_SERVICE now.
 (
- 1,
+ '1',
     '2025-10-01 09:00:00',
     '2025-10-15 10:00:00',
     '2025-10-20 10:00:00',
@@ -166,7 +166,7 @@ INSERT INTO RESERVATION (
 -- Scenario: Currently rented or reserved for Dec 1-10.
 -- Searching for dates between Dec 1-10 should NOT return this car.
 (
- 2,
+ '2',
     '2025-11-15 14:30:00',
     '2025-12-01 09:00:00',
     '2025-12-10 18:00:00',
@@ -182,7 +182,7 @@ INSERT INTO RESERVATION (
 -- Scenario: Customer booked for Dec 5-8 but cancelled.
 -- Searching for these dates SHOULD return this car because the status is CANCELLED.
 (
- 3,
+ '3',
     '2025-11-18 11:00:00',
     '2025-12-05 12:00:00',
     '2025-12-08 12:00:00',
@@ -197,7 +197,7 @@ INSERT INTO RESERVATION (
 -- Car: Mercedes C200 (ID 9)
 -- Scenario: New Years rental.
 (
- 4,
+ '4',
     '2025-11-20 08:45:00',
     '2025-12-28 10:00:00',
     '2026-01-15 10:00:00',
@@ -211,14 +211,14 @@ INSERT INTO RESERVATION (
 -- Link Extras to Reservations
 INSERT INTO REF_RESERVATION_EXTRAS (reservation_number, extra_service_id) VALUES
 -- Reservation 1 (Kerem, Corolla): Added GPS (7) and Prepaid Fuel (16)
-(1, 7),
-(1, 16),
+('1', 7),
+('1', 16),
 
 -- Reservation 2 (Ayse, BMW): Added Child Seat (4) and Full Insurance (17 - Collision Damage)
-(2, 4),
-(2, 17),
+('2', 4),
+('2', 17),
 
 -- Reservation 4 (John, Mercedes): Added Cross-Border Permit (20) and Snow Tires (12)
-(4, 20),
-(4, 12)
+('4', 20),
+('4', 12)
 ON CONFLICT DO NOTHING;

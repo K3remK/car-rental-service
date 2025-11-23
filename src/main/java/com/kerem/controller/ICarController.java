@@ -3,6 +3,7 @@ package com.kerem.controller;
 import com.kerem.dto.carDto.CarDto;
 import org.springframework.http.ResponseEntity;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -17,8 +18,8 @@ public interface ICarController {
             String licensePlateNumber,
             Long maxMileage,
             String model,
-            Date pickUpDate,
-            Date dropOffDate,
+            LocalDateTime pickUpDate,
+            LocalDateTime dropOffDate,
             Integer numberOfSeats,
             Long locationCode
     );
@@ -28,8 +29,8 @@ public interface ICarController {
             String transmissionType,
             Double minPrice,
             Double maxPrice,
-            Date pickUpDate,
-            Date dropOffDate,
+            LocalDateTime pickUpDate,
+            LocalDateTime dropOffDate,
             Integer numberOfSeats,
             Long locationCode
     );

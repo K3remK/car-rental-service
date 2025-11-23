@@ -15,6 +15,7 @@ public interface CarMapper {
 
     Car map(CarDtoIU carDtoIU);
     CarDto mapGet(Car car);
+    Car map(CarDto carDto);
     CarDtoIU mapIU(Car car);
     void map(CarDtoIU source, @MappingTarget Car destination);
     void map(Car source, @MappingTarget RentedCarDto destination);
