@@ -27,7 +27,6 @@ public class Customer {
 
     private String email;
     @Column(length = 15, nullable = false, unique = true)
-
     private String phoneNumber;
     private String address;
     @Column(length = 20, nullable = false, unique = true)

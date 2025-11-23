@@ -12,9 +12,11 @@ import com.kerem.mapper.ExtraServiceMapper;
 import com.kerem.mapper.ReservationMapper;
 import com.kerem.repository.ReservationRepository;
 import com.kerem.service.*;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.NotAcceptableStatusException;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -39,9 +41,13 @@ public class ReservationServiceImpl implements IReservationService {
         Car reservationCar = carService.findCarById(reservationDtoIU.getCarBarcodeNumber());
 
         // CHECK IF THE CAR IS OUT_OF_SERVICE OR HAS ANOTHER RESERVATION FOR THE SPECIFIED DATES
-        if (reservationCar.getStatus() == Car.CarStatus.OUT_OF_SERVICE || !carService.isAvailable(reservationCar.getBarcode()
-        , reservationDtoIU.getPickUpDateAndTime(), reservationDtoIU.getDropOffDateAndTime())) {
-            //TODO: throw not acceptable status error
+        if (reservationCar.getStatus() == Car.CarStatus.OUT_OF_SERVICE) {
+            throw new NotAcceptableStatusException("Car is out of service!");
+        }
+
+        if (!carService.isAvailable(reservationCar.getBarcode()
+                , reservationDtoIU.getPickUpDateAndTime(), reservationDtoIU.getDropOffDateAndTime())) {
+            throw new NotAcceptableStatusException("Car has another reservation for the specified dates!");
         }
 
         Customer customer = customerService.getCustomerBySsn(reservationDtoIU.getCustomerSsn());
@@ -85,6 +91,10 @@ public class ReservationServiceImpl implements IReservationService {
         LocalDateTime today = LocalDateTime.now();
         List<Reservation> activeReservationsToday = reservationRepository.getActiveReservationsOn(today);
 
+        if  (activeReservationsToday.isEmpty()) {
+            throw new EntityNotFoundException("Could not find any currently active reservations! Hence, There is no currently reserved car!");
+        }
+
         List<RentedCarDto> res = new ArrayList<>();
 
         for (Reservation reservation : activeReservationsToday) {
@@ -108,11 +118,8 @@ public class ReservationServiceImpl implements IReservationService {
 
     @Override
     public Boolean addExtraServiceToReservation(String reservationNumber, Long extraServiceId) {
-        Reservation reservation = reservationRepository.findById(reservationNumber).orElse(null);
+        Reservation reservation = reservationRepository.findById(reservationNumber).orElseThrow(() -> new EntityNotFoundException("Reservation not found! ReservationNumber: " + reservationNumber));
         ExtraService extraService = extraServiceService.findById(extraServiceId);
-        if (reservation == null) {
-            // TODO: throw not found exception
-        }
 
         if (reservation.getExtras().contains(extraService)) {
             return false;
@@ -127,16 +134,13 @@ public class ReservationServiceImpl implements IReservationService {
     @Override
     public Boolean returnCar(String reservationNumber) {
 
-        Reservation reservation = reservationRepository.findById(reservationNumber).orElse(null);
-
-        if (reservation == null) {
-            // TODO: throw not found exception
-        }
+        Reservation reservation = reservationRepository.findById(reservationNumber).orElseThrow(()
+                -> new  EntityNotFoundException("Reservation not found! ReservationNumber: " + reservationNumber));
 
         Car dbCar = reservation.getCar();
 
         if (dbCar == null) {
-            // TODO: throw not found exception
+            throw new EntityNotFoundException("Car not found!");
         }
 
         reservation.setStatus(Reservation.Status.COMPLETED);
@@ -156,10 +160,8 @@ public class ReservationServiceImpl implements IReservationService {
 
     @Override
     public Boolean cancelReservation(String reservationNumber) {
-        Reservation foundReservation = reservationRepository.findById(reservationNumber).orElse(null);
-        if (foundReservation == null) {
-            // TODO: throw not found exception
-        }
+        Reservation foundReservation = reservationRepository.findById(reservationNumber).orElseThrow(()
+                -> new EntityNotFoundException("Reservation not found! ReservationNumber: " + reservationNumber));
 
         foundReservation.setStatus(Reservation.Status.CANCELLED);
         reservationRepository.save(foundReservation);
@@ -169,11 +171,8 @@ public class ReservationServiceImpl implements IReservationService {
 
     @Override
     public Boolean deleteReservation(String reservationNumber) {
-        Reservation reservation = reservationRepository.findById(reservationNumber).orElse(null);
-
-        if (reservation == null) {
-            // TODO: throw not found exception
-        }
+        Reservation reservation = reservationRepository.findById(reservationNumber).orElseThrow(()
+                -> new EntityNotFoundException("Reservation not found! ReservationNumber: " + reservationNumber));
 
         reservationRepository.delete(reservation);
 

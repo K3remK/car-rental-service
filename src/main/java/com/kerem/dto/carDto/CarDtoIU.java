@@ -29,7 +29,6 @@ public class CarDtoIU {
 
     private String categoryDescription;
 
-    // TODO: not sure about the type maybe this should only be location name or location code
     private LocationDto location;
 
     private Car.CarStatus status;

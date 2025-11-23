@@ -27,7 +27,6 @@ public class CarSpecification {
             if (transmissionType == null) {
                 return null;
             }
-            // TODO: might not work comparing an enum with string
             return criteriaBuilder.equal(root.get("transmissionType"), transmissionType);
         });
     }

@@ -27,15 +27,7 @@ public class ReservationControllerImpl implements IReservationController {
     @GetMapping(path = "/list/currentlyRentedCars")
     @Override
     public ResponseEntity<List<RentedCarDto>> getAllCurrentlyReservedCars() {
-
-        List<RentedCarDto> res = reservationService.getAllCurrentlyReservedCars();
-
-        if (res.isEmpty()) {
-            // TODO: throw not found exception
-            ResponseEntity.notFound().build();
-        }
-
-        return ResponseEntity.ok(res);
+        return ResponseEntity.ok(reservationService.getAllCurrentlyReservedCars());
     }
 
     @PutMapping(path = "/update/addExtraService/{reservationNumber}")
@@ -48,13 +40,7 @@ public class ReservationControllerImpl implements IReservationController {
     @PostMapping(path = "/update/returnCar/{reservationNumber}")
     @Override
     public ResponseEntity<Boolean> returnCar(@PathVariable(name = "reservationNumber") String reservationNumber) {
-        Boolean res = reservationService.returnCar(reservationNumber);
-
-        if (!res) {
-            ResponseEntity.notFound().build();
-        }
-
-        return ResponseEntity.ok(res);
+        return ResponseEntity.ok(reservationService.returnCar(reservationNumber));
     }
 
     @PostMapping(path = "/update/cancel/{reservationNumber}")

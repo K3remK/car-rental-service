@@ -5,6 +5,7 @@ import com.kerem.entities.ExtraService;
 import com.kerem.mapper.ExtraServiceMapper;
 import com.kerem.repository.ExtraServiceRepository;
 import com.kerem.service.IExtraServiceService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,12 +18,7 @@ public class ExtraServiceServiceImpl implements IExtraServiceService {
 
     @Override
     public ExtraService findById(Long id) {
-        ExtraService extraService = extraServiceRepository.findById(id).orElse(null);
-
-        if (extraService == null) {
-            // TODO: throw not found exception
-        }
-
-        return extraService;
+        return extraServiceRepository.findById(id).orElseThrow(()
+                -> new EntityNotFoundException("ExtraService not found! ID:" + id));
     }
 }

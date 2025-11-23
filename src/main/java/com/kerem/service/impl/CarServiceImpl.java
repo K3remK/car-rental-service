@@ -28,7 +28,6 @@ public class CarServiceImpl implements ICarService {
     private final CarRepository carRepository;
     private final CarMapper carMapper;
 
-    // TODO: change Date to LocalDateTime
     @Override
     public List<CarDto> findCarsWithParams(String carCategory,
                                            String carBrand,
@@ -61,7 +60,7 @@ public class CarServiceImpl implements ICarService {
         List<Car> foundCars = carRepository.findAll(spec);
 
         if (foundCars.isEmpty()) {
-            // TODO: throw not found exception and catch it in the GlobalExceptionHandler
+            throw new EntityNotFoundException("Couldn't find any cars with parameters!");
         }
 
         // 4. Map to DTOs
@@ -80,21 +79,15 @@ public class CarServiceImpl implements ICarService {
     }
 
     @Override
-    public Car findCarById(UUID id) {
-        Car foundCar = carRepository.findById(id).orElse(null);
-        if (foundCar == null) {
-            // TODO: throw not found exception
-        }
-        return foundCar;
+    public Car findCarById(UUID barcode) {
+        return carRepository.findById(barcode).orElseThrow(()
+                -> new EntityNotFoundException("Car not found! Barcode: " + barcode));
     }
 
     @Override
     public CarDto updateCar(UUID barcode, CarDtoIU carDtoIU) {
-        Car car = carRepository.findById(barcode).orElse(null);
-
-        if (car == null) {
-            // TODO: throw not found exception
-        }
+        Car car = carRepository.findById(barcode).orElseThrow(()
+                ->  new EntityNotFoundException("Car not found! Barcode: " + barcode));
 
         carMapper.map(carDtoIU, car);
         carRepository.save(car);
@@ -105,12 +98,8 @@ public class CarServiceImpl implements ICarService {
     @Override
     public Boolean deleteCar(UUID barcode) {
 
-       Car car = carRepository.findById(barcode).orElse(null);
-
-       if (car == null) {
-           // TODO: throw not found exception
-           throw new EntityNotFoundException("Car not found! Barcode:" + barcode);
-       }
+       Car car = carRepository.findById(barcode).orElseThrow(()
+               -> new EntityNotFoundException("Car not found! Barcode: " + barcode));
 
        Specification<Car> spec = Specification.<Car>unrestricted()
                .and(CarSpecification.hasId(barcode))
@@ -119,7 +108,6 @@ public class CarServiceImpl implements ICarService {
        List<Car> foundCars = carRepository.findAll(spec);
 
        if  (foundCars.contains(car)) {
-           // TODO: throw not acceptable exception
            throw new NotAcceptableStatusException("Car has been used for a reservation! Barcode: " + barcode);
        }
 

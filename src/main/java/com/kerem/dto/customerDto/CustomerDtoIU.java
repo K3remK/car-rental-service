@@ -12,9 +12,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CustomerDtoIU {
-
-    // TODO: maybe insert and update dto's can be merged as one object
-
     @NotNull(message = "Customer SSN can't be null!")
     @NotEmpty(message = "Customer SSN can't be empty!")
     @Size(min = 11, max = 11)

@@ -3,6 +3,7 @@ package com.kerem.service.impl;
 import com.kerem.entities.Customer;
 import com.kerem.repository.CustomerRepository;
 import com.kerem.service.ICustomerService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,11 +17,6 @@ public class CustomerServiceImpl implements ICustomerService {
 
     @Override
     public Customer getCustomerBySsn(String ssn) {
-
-        Customer cust = customerRepository.findById(ssn).orElse(null);
-
-        if (cust == null); // TODO: throw new not found exception;
-
-        return cust;
+        return customerRepository.findById(ssn).orElseThrow(() -> new EntityNotFoundException("Customer not found! SSN:" + ssn));
     }
 }

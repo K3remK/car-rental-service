@@ -1,7 +1,58 @@
 package com.kerem.exception;
 
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.server.NotAcceptableStatusException;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(value = MethodArgumentNotValidException.class)
+    public ResponseEntity<APIError<Map<String, List<String>>>> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
+
+        // Grouping fields by name and collecting messages into a list
+        Map<String, List<String>> errors = ex.getBindingResult().getFieldErrors()
+                .stream()
+                .collect(Collectors.groupingBy(
+                        FieldError::getField,
+                        Collectors.mapping(FieldError::getDefaultMessage, Collectors.toList())
+                ));
+
+        return ResponseEntity.badRequest().body(createApiError(errors));
+    }
+
+    @ExceptionHandler(value = EntityNotFoundException.class)
+    public ResponseEntity<APIError<String>> handleEntityNotFound(EntityNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(createApiError(ex.getMessage()));
+    }
+
+    @ExceptionHandler(value = NotAcceptableStatusException.class)
+    public ResponseEntity<APIError<String>> handleNotAcceptableStatus(NotAcceptableStatusException err) {
+        return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(createApiError(err.getMessage()));
+    }
+
+    @ExceptionHandler(value = HttpServerErrorException.InternalServerError.class)
+    public ResponseEntity<APIError<String>> handleHttpServerErrorException(HttpServerErrorException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(createApiError(ex.getMessage()));
+    }
+
+    private <T> APIError<T> createApiError(T errors) {
+        return new APIError<>(
+                UUID.randomUUID().toString(),
+                LocalDateTime.now(),
+                errors
+        );
+    }
 }

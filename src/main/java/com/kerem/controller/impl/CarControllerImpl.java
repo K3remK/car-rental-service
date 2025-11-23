@@ -80,8 +80,8 @@ public class CarControllerImpl implements ICarController {
             @RequestParam(name = "transmissionType", required = false) String transmissionType,
             @RequestParam(name = "minPrice", required = false) Double minPrice,
             @RequestParam(name = "maxPrice", required = false) Double maxPrice,
-            @RequestParam(name = "pickUpDate", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDateTime pickUpDate,
-            @RequestParam(name = "dropOffDate", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDateTime dropOffDate,
+            @RequestParam(name = "pickUpDate", required = true) @DateTimeFormat(pattern = "yyyy-MM-ddTHH:mm") LocalDateTime pickUpDate,
+            @RequestParam(name = "dropOffDate", required = true) @DateTimeFormat(pattern = "yyyy-MM-ddTHH:mm") LocalDateTime dropOffDate,
             @RequestParam(name = "numberOfSeats", required = false) Integer numberOfSeats,
             @RequestParam(name = "pickUpLocationCode", required = true) Long pickUpLocationCode
     ) {
