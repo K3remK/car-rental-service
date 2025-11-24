@@ -1,8 +1,10 @@
 package com.kerem.exception;
 
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -11,6 +13,7 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.server.NotAcceptableStatusException;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -40,7 +43,16 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = NotAcceptableStatusException.class)
     public ResponseEntity<APIError<String>> handleNotAcceptableStatus(NotAcceptableStatusException err) {
-        return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(createApiError(err.getMessage()));
+        return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(createApiError(err.getReason()));
+    }
+
+    @ExceptionHandler(value = HttpMessageNotReadableException.class)
+    public ResponseEntity<APIError<String>> handleHttpMessageNotReadable(HttpMessageNotReadableException err) {
+        Throwable cause = err.getMostSpecificCause();
+        if (cause instanceof DateTimeParseException) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createApiError(err.getMostSpecificCause().getMessage() + ". Use format: 'yyyy-MM-dd:HH:mm:ss'"));
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createApiError(err.getMessage()));
     }
 
     @ExceptionHandler(value = HttpServerErrorException.InternalServerError.class)

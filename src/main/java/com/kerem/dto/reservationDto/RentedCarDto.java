@@ -26,7 +26,7 @@ public class RentedCarDto {
     private Car.Category categoryType;
 
     // Reservation info
-    private Long reservationNumber;
+    private String reservationNumber;
 
     private LocalDateTime dropOffDateAndTime;
 

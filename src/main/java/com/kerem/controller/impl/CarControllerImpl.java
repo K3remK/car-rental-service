@@ -5,6 +5,7 @@ import com.kerem.dto.carDto.CarDto;
 import com.kerem.service.ICarService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,8 +23,7 @@ import java.util.UUID;
     403,HttpStatus.FORBIDDEN,Forbidden,User is logged in but lacks permission.
     404,HttpStatus.NOT_FOUND,Not Found,Resource doesn't exist.
     500,HttpStatus.INTERNAL_SERVER_ERROR,Server Error,Uncaught exception/crash.
-*
-* */
+*/
 
 
 @RestController
@@ -45,8 +45,8 @@ public class CarControllerImpl implements ICarController {
             @RequestParam(name = "licensePlate", required = false) String licensePlate,
             @RequestParam(name = "maxMileage", required = false) Long maxMileage,
             @RequestParam(name = "model", required = false) String model,
-            @RequestParam(name = "pickUpDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDateTime pickUpDate,
-            @RequestParam(name = "dropOffDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDateTime dropOffDate,
+            @RequestParam(name = "pickUpDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime pickUpDate,
+            @RequestParam(name = "dropOffDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime dropOffDate,
             @RequestParam(name = "numberOfSeats", required = false) Integer numberOfSeats,
             @RequestParam(name = "pickUpLocationCode", required = false) Long pickUpLocationCode
     ) {
@@ -66,10 +66,6 @@ public class CarControllerImpl implements ICarController {
                 pickUpLocationCode
         );
 
-        if (foundCars.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
         return ResponseEntity.ok(foundCars);
     }
 
@@ -80,8 +76,8 @@ public class CarControllerImpl implements ICarController {
             @RequestParam(name = "transmissionType", required = false) String transmissionType,
             @RequestParam(name = "minPrice", required = false) Double minPrice,
             @RequestParam(name = "maxPrice", required = false) Double maxPrice,
-            @RequestParam(name = "pickUpDate", required = true) @DateTimeFormat(pattern = "yyyy-MM-ddTHH:mm") LocalDateTime pickUpDate,
-            @RequestParam(name = "dropOffDate", required = true) @DateTimeFormat(pattern = "yyyy-MM-ddTHH:mm") LocalDateTime dropOffDate,
+            @RequestParam(name = "pickUpDate", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime pickUpDate,
+            @RequestParam(name = "dropOffDate", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime dropOffDate,
             @RequestParam(name = "numberOfSeats", required = false) Integer numberOfSeats,
             @RequestParam(name = "pickUpLocationCode", required = true) Long pickUpLocationCode
     ) {
@@ -100,10 +96,6 @@ public class CarControllerImpl implements ICarController {
                 numberOfSeats,
                 pickUpLocationCode
         );
-
-        if (foundCars.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
 
         return ResponseEntity.ok(foundCars);
     }

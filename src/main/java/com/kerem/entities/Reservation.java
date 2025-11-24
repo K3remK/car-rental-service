@@ -39,7 +39,6 @@ public class Reservation {
     private Location dropOffLocation;
 
     @ManyToOne
-    @JoinColumn(name = "customer_ssn")
     private Customer customer;
 
     @ManyToOne
@@ -49,6 +48,8 @@ public class Reservation {
     @ManyToMany
     @JoinTable(name = "REF_RESERVATION_EXTRAS",
     joinColumns = @JoinColumn(name = "reservation_number"),
-    inverseJoinColumns = @JoinColumn(name = "extra_service_id"))
+    inverseJoinColumns = @JoinColumn(name = "extra_service_id"),
+    // this will ensure that same reservation can't have same extra service multiple times
+    uniqueConstraints = @UniqueConstraint(columnNames = {"reservation_number", "extra_service_id"}))
     private List<ExtraService> extras = new ArrayList<>();
 }

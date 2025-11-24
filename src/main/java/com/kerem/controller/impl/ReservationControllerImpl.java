@@ -5,6 +5,8 @@ import com.kerem.dto.reservationDto.RentedCarDto;
 import com.kerem.dto.reservationDto.ReservationDto;
 import com.kerem.dto.reservationDto.ReservationDtoIU;
 import com.kerem.service.IReservationService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +22,7 @@ public class ReservationControllerImpl implements IReservationController {
 
     @PostMapping("/save")
     @Override
-    public ResponseEntity<ReservationDto> saveReservation(@RequestBody ReservationDtoIU reservationDtoIU) {
+    public ResponseEntity<ReservationDto> saveReservation(@RequestBody @Valid ReservationDtoIU reservationDtoIU) {
         return ResponseEntity.ok(reservationService.saveReservation(reservationDtoIU));
     }
 
@@ -34,16 +36,16 @@ public class ReservationControllerImpl implements IReservationController {
     @Override
     public ResponseEntity<Boolean> addExtraServiceToReservation(@PathVariable(name = "reservationNumber") String reservationNumber,
                                                                 @RequestParam(name = "extraServiceId") Long extraServiceId) {
-        return null;
+        return ResponseEntity.ok(reservationService.addExtraServiceToReservation(reservationNumber, extraServiceId));
     }
 
-    @PostMapping(path = "/update/returnCar/{reservationNumber}")
+    @PutMapping(path = "/update/returnCar/{reservationNumber}")
     @Override
     public ResponseEntity<Boolean> returnCar(@PathVariable(name = "reservationNumber") String reservationNumber) {
         return ResponseEntity.ok(reservationService.returnCar(reservationNumber));
     }
 
-    @PostMapping(path = "/update/cancel/{reservationNumber}")
+    @PutMapping(path = "/update/cancel/{reservationNumber}")
     @Override
     public ResponseEntity<Boolean> cancelReservation(@PathVariable(name = "reservationNumber") String reservationNumber) {
         return ResponseEntity.ok().body(reservationService.cancelReservation(reservationNumber));

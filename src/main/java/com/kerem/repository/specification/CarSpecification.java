@@ -38,6 +38,7 @@ public class CarSpecification {
             }
 
             // subquery to find IDs of car that are busy
+            assert query != null;
             Subquery<UUID> subquery = query.subquery(UUID.class);
             Root<Reservation> reservation = subquery.from(Reservation.class);
 
