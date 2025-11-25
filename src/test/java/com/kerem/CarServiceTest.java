@@ -2,6 +2,7 @@ package com.kerem;
 
 import com.kerem.dto.carDto.CarDto;
 import com.kerem.dto.carDto.CarDtoIU;
+import com.kerem.dto.carDto.SearchCarParamsDto;
 import com.kerem.entities.Car;
 import com.kerem.entities.Location;
 import com.kerem.mapper.CarMapper;
@@ -162,17 +163,18 @@ class CarServiceTest {
         Car car2 = createRandomCar();
         List<Car> carList = List.of(car1, car2);
 
+        SearchCarParamsDto searchCarParamsDto = new SearchCarParamsDto(Car.Category.SUV, "Toyota", Car.TransmissionType.AUTOMATIC, Car.CarStatus.IN_SERVICE,
+                50.0, 200.0, null, 10000L, null,
+                LocalDateTime.now(), LocalDateTime.now().plusDays(3), 4, 1L);
+
+
         // Since specifications are complex static chains, we strictly test
         // that the repository is called and handles the result list correctly.
         when(carRepository.findAll(any(Specification.class))).thenReturn(carList);
         when(carMapper.mapGet(any(Car.class))).thenReturn(new CarDto());
 
         // Act
-        List<CarDto> results = carService.findCarsWithParams(
-                "SUV", "Toyota", "AUTOMATIC", "IN_SERVICE",
-                50.0, 200.0, null, 10000L, null,
-                LocalDateTime.now(), LocalDateTime.now().plusDays(3), 4, 1L
-        );
+        List<CarDto> results = carService.findCarsWithParams(searchCarParamsDto);
 
         // Assert
         assertEquals(2, results.size());
@@ -186,8 +188,6 @@ class CarServiceTest {
         when(carRepository.findAll(any(Specification.class))).thenReturn(Collections.emptyList());
 
         // Act & Assert
-        assertThrows(EntityNotFoundException.class, () -> carService.findCarsWithParams(
-                null, null, null, null, null, null, null, null, null, null, null, null, null
-        ));
+        assertThrows(EntityNotFoundException.class, () -> carService.findCarsWithParams(new SearchCarParamsDto()));
     }
 }
