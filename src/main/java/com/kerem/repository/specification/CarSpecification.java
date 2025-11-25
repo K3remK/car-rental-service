@@ -8,12 +8,11 @@ import jakarta.persistence.criteria.Subquery;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.UUID;
 
 public class CarSpecification {
 
-    public static Specification<Car> hasCategory(String category) {
+    public static Specification<Car> hasCategory(Car.Category category) {
         return ((root, query, criteriaBuilder) -> {
             if (category == null) {
                 return null;
@@ -22,7 +21,7 @@ public class CarSpecification {
         });
     }
 
-    public static Specification<Car> hasTransmissionType(String transmissionType) {
+    public static Specification<Car> hasTransmissionType(Car.TransmissionType transmissionType) {
         return ((root, query, criteriaBuilder) -> {
             if (transmissionType == null) {
                 return null;
@@ -43,7 +42,7 @@ public class CarSpecification {
             Root<Reservation> reservation = subquery.from(Reservation.class);
 
             // select the Car ID from the reservation table
-            subquery.select(reservation.get("car").get("barcode"));
+            subquery.select(reservation.get("car").get("id"));
 
             // This is the overlap condition
             // A reservation overlaps if:
@@ -59,7 +58,7 @@ public class CarSpecification {
             subquery.where(criteriaBuilder.and(overlap, activeStatus));
 
             // Main query: returns cars whose ID in NOT in the list of busy cars
-            return criteriaBuilder.not(root.get("barcode").in(subquery));
+            return criteriaBuilder.not(root.get("id").in(subquery));
         });
     }
 
@@ -99,6 +98,7 @@ public class CarSpecification {
     public static Specification<Car> hasBeenUsedForAnyReservation() {
         return ((root, query, criteriaBuilder) -> {
 
+            assert query != null;
             Subquery<UUID> subquery = query.subquery(UUID.class);
             Root<Reservation> reservation = subquery.from(Reservation.class);
 
@@ -119,7 +119,7 @@ public class CarSpecification {
         });
     }
 
-    public static Specification<Car> hasStatus(String status) {
+    public static Specification<Car> hasStatus(Car.CarStatus status) {
         return ((root, query, criteriaBuilder) -> {
             if (status == null) {
                 return null;

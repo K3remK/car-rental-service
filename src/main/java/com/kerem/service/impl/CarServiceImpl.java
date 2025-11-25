@@ -2,12 +2,12 @@ package com.kerem.service.impl;
 
 import com.kerem.dto.carDto.CarDto;
 import com.kerem.dto.carDto.CarDtoIU;
+import com.kerem.dto.carDto.SearchCarParamsDto;
 import com.kerem.entities.Car;
 import com.kerem.mapper.CarMapper;
 import com.kerem.repository.CarRepository;
 import com.kerem.repository.specification.CarSpecification;
 import com.kerem.service.ICarService;
-import jakarta.persistence.Entity;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.NotAcceptableStatusException;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -29,32 +28,19 @@ public class CarServiceImpl implements ICarService {
     private final CarMapper carMapper;
 
     @Override
-    public List<CarDto> findCarsWithParams(String carCategory,
-                                           String carBrand,
-                                           String transmissionType,
-                                           String status,
-                                           Double minPrice,
-                                           Double maxPrice,
-                                           String licensePlateNumber,
-                                           Long maxMileage,
-                                           String model,
-                                           LocalDateTime pickUpDate,
-                                           LocalDateTime dropOffDate,
-                                           Integer numberOfSeats,
-                                           Long pickUpLocationCode) {
-
+    public List<CarDto> findCarsWithParams(SearchCarParamsDto searchCarParamsDto) {
         Specification<Car> spec = Specification.<Car>unrestricted()
-                .and(CarSpecification.isAvailable(pickUpDate, dropOffDate))
-                .and(CarSpecification.hasCategory(carCategory))
-                .and(CarSpecification.hasBrand(carBrand))
-                .and(CarSpecification.hasTransmissionType(transmissionType))
-                .and(CarSpecification.hasStatus(status))
-                .and(CarSpecification.priceInBetween(minPrice, maxPrice))
-                .and(CarSpecification.hasLicensePlate(licensePlateNumber))
-                .and(CarSpecification.hasModel(model))
-                .and(CarSpecification.hasMileageLessThan(maxMileage))
-                .and(CarSpecification.numberOfSeatsGreaterThan(numberOfSeats))
-                .and(CarSpecification.hasPickUpLocation(pickUpLocationCode));
+                .and(CarSpecification.isAvailable(searchCarParamsDto.getPickUpDate(), searchCarParamsDto.getDropOffDate()))
+                .and(CarSpecification.hasCategory(searchCarParamsDto.getCarCategory()))
+                .and(CarSpecification.hasBrand(searchCarParamsDto.getBrand()))
+                .and(CarSpecification.hasTransmissionType(searchCarParamsDto.getTransmissionType()))
+                .and(CarSpecification.hasStatus(searchCarParamsDto.getStatus()))
+                .and(CarSpecification.priceInBetween(searchCarParamsDto.getMinPrice(), searchCarParamsDto.getMaxPrice()))
+                .and(CarSpecification.hasLicensePlate(searchCarParamsDto.getLicensePlate()))
+                .and(CarSpecification.hasModel(searchCarParamsDto.getModel()))
+                .and(CarSpecification.hasMileageLessThan(searchCarParamsDto.getMaxMileage()))
+                .and(CarSpecification.numberOfSeatsGreaterThan(searchCarParamsDto.getNumberOfSeats()))
+                .and(CarSpecification.hasPickUpLocation(searchCarParamsDto.getPickUpLocationCode()));
 
         // 2. Execute
         List<Car> foundCars = carRepository.findAll(spec);

@@ -2,14 +2,16 @@ package com.kerem.controller.impl;
 
 import com.kerem.controller.ICarController;
 import com.kerem.dto.carDto.CarDto;
+import com.kerem.dto.carDto.SearchAvailableCarDto;
+import com.kerem.dto.carDto.SearchCarParamsDto;
+import com.kerem.entities.Car;
+import com.kerem.mapper.CarMapper;
 import com.kerem.service.ICarService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -32,70 +34,26 @@ import java.util.UUID;
 public class CarControllerImpl implements ICarController {
 
     private final ICarService carService;
+    private final CarMapper carMapper;
 
     @GetMapping(path = "/list/with-params")
     @Override
-    public ResponseEntity<List<CarDto>> findCarsWithParams(
-            @RequestParam(name = "carCategory", required = false) String carCategory,
-            @RequestParam(name = "brand", required = false) String brand,
-            @RequestParam(name = "transmissionType", required = false) String transmissionType,
-            @RequestParam(name = "status", required = false) String status,
-            @RequestParam(name = "minPrice", required = false) Double minPrice,
-            @RequestParam(name = "maxPrice", required = false) Double maxPrice,
-            @RequestParam(name = "licensePlate", required = false) String licensePlate,
-            @RequestParam(name = "maxMileage", required = false) Long maxMileage,
-            @RequestParam(name = "model", required = false) String model,
-            @RequestParam(name = "pickUpDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime pickUpDate,
-            @RequestParam(name = "dropOffDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime dropOffDate,
-            @RequestParam(name = "numberOfSeats", required = false) Integer numberOfSeats,
-            @RequestParam(name = "pickUpLocationCode", required = false) Long pickUpLocationCode
-    ) {
-        List<CarDto> foundCars = carService.findCarsWithParams(
-                carCategory,
-                brand,
-                transmissionType,
-                status,
-                minPrice,
-                maxPrice,
-                licensePlate,
-                maxMileage,
-                model,
-                pickUpDate,
-                dropOffDate,
-                numberOfSeats,
-                pickUpLocationCode
-        );
-
+    public ResponseEntity<List<CarDto>> findCarsWithParams(@RequestBody @Valid SearchCarParamsDto searchCarParamsDto) {
+        List<CarDto> foundCars = carService.findCarsWithParams(searchCarParamsDto);
         return ResponseEntity.ok(foundCars);
     }
 
     @GetMapping(path = "/list/available")
     @Override
-    public ResponseEntity<List<CarDto>> searchAvailableCars(
-            @RequestParam(name = "carCategory", required = false) String carCategory,
-            @RequestParam(name = "transmissionType", required = false) String transmissionType,
-            @RequestParam(name = "minPrice", required = false) Double minPrice,
-            @RequestParam(name = "maxPrice", required = false) Double maxPrice,
-            @RequestParam(name = "pickUpDate", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime pickUpDate,
-            @RequestParam(name = "dropOffDate", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime dropOffDate,
-            @RequestParam(name = "numberOfSeats", required = false) Integer numberOfSeats,
-            @RequestParam(name = "pickUpLocationCode", required = true) Long pickUpLocationCode
-    ) {
-        List<CarDto> foundCars = carService.findCarsWithParams(
-                carCategory,
-                null,
-                transmissionType,
-                "IN_SERVICE",
-                minPrice,
-                maxPrice,
-                null,
-                null,
-                null,
-                pickUpDate,
-                dropOffDate,
-                numberOfSeats,
-                pickUpLocationCode
-        );
+    public ResponseEntity<List<CarDto>> searchAvailableCars(@RequestBody @Valid SearchAvailableCarDto searchAvailableCarDto) {
+        SearchCarParamsDto searchCarParamsDto = carMapper.map(searchAvailableCarDto);
+        searchCarParamsDto.setStatus(Car.CarStatus.IN_SERVICE);
+        searchCarParamsDto.setBrand(null);
+        searchCarParamsDto.setLicensePlate(null);
+        searchCarParamsDto.setModel(null);
+        searchCarParamsDto.setMaxMileage(null);
+
+        List<CarDto> foundCars = carService.findCarsWithParams(searchCarParamsDto);
 
         return ResponseEntity.ok(foundCars);
     }
