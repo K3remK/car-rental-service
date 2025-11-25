@@ -12,6 +12,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.NotAcceptableStatusException;
 
 import java.time.LocalDateTime;
@@ -20,6 +21,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class CarServiceImpl implements ICarService {
 
@@ -65,11 +67,12 @@ public class CarServiceImpl implements ICarService {
     }
 
     @Override
-    public Car findCarById(UUID barcode) {
-        return carRepository.findById(barcode).orElseThrow(()
-                -> new EntityNotFoundException("Car not found! Barcode: " + barcode));
+    public CarDto findCarById(UUID barcode) {
+        return carMapper.mapGet(carRepository.findById(barcode).orElseThrow(()
+                -> new EntityNotFoundException("Car not found! Barcode: " + barcode)));
     }
 
+    @Transactional
     @Override
     public CarDto updateCar(UUID barcode, CarDtoIU carDtoIU) {
         Car car = carRepository.findById(barcode).orElseThrow(()
@@ -81,6 +84,7 @@ public class CarServiceImpl implements ICarService {
         return carMapper.mapGet(car);
     }
 
+    @Transactional
     @Override
     public Boolean deleteCar(UUID barcode) {
 
@@ -101,5 +105,12 @@ public class CarServiceImpl implements ICarService {
 
 
         return true;
+    }
+
+    @Transactional
+    @Override
+    public CarDto saveCar(CarDtoIU carDtoIU) {
+        Car car = carMapper.map(carDtoIU);
+        return carMapper.mapGet(carRepository.save(car));
     }
 }

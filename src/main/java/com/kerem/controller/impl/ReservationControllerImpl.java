@@ -1,12 +1,11 @@
 package com.kerem.controller.impl;
 
 import com.kerem.controller.IReservationController;
-import com.kerem.dto.reservationDto.RentedCarDto;
-import com.kerem.dto.reservationDto.ReservationDto;
-import com.kerem.dto.reservationDto.ReservationDtoIU;
+import com.kerem.dto.carDto.RentedCarDto;
+import com.kerem.dto.reservationDto.ReservationInsertDto;
+import com.kerem.dto.reservationDto.SaveReservationReturnDto;
 import com.kerem.service.IReservationService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,8 +21,8 @@ public class ReservationControllerImpl implements IReservationController {
 
     @PostMapping("/save")
     @Override
-    public ResponseEntity<ReservationDto> saveReservation(@RequestBody @Valid ReservationDtoIU reservationDtoIU) {
-        return ResponseEntity.ok(reservationService.saveReservation(reservationDtoIU));
+    public ResponseEntity<SaveReservationReturnDto> saveReservation(@RequestBody @Valid ReservationInsertDto reservationInsertDto) {
+        return ResponseEntity.ok(reservationService.saveReservation(reservationInsertDto));
     }
 
     @GetMapping(path = "/list/currentlyRentedCars")

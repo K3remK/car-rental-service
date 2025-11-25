@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -29,6 +30,6 @@ public class Customer {
     @Column(length = 20, nullable = false, unique = true)
     private String drivingLicenseNumber;
 
-    @OneToMany(mappedBy = "customer")
-    List<Reservation> reservations;
+    @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY)
+    List<Reservation> reservations = new ArrayList<>();
 }

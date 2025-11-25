@@ -1,8 +1,14 @@
 package com.kerem.service;
 
-import com.kerem.entities.Location;
+import com.kerem.dto.locationDto.LocationDto;
+import com.kerem.dto.locationDto.LocationDtoIU;
+
+import java.util.List;
 
 public interface ILocationService {
 
-    Location getLocationById(Long id);
+    List<LocationDto> getLocations();
+    LocationDto getLocationById(Long id);
+    LocationDto saveLocation(LocationDtoIU locationDtoIU);
+    LocationDto updateLocation(Long id, LocationDtoIU locationDtoIU);
 }

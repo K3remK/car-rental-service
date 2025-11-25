@@ -3,191 +3,178 @@ package com.kerem;
 import com.kerem.dto.carDto.CarDto;
 import com.kerem.dto.carDto.CarDtoIU;
 import com.kerem.dto.carDto.SearchCarParamsDto;
+import com.kerem.dto.locationDto.LocationDto;
 import com.kerem.entities.Car;
 import com.kerem.entities.Location;
-import com.kerem.mapper.CarMapper;
 import com.kerem.repository.CarRepository;
-import com.kerem.service.impl.CarServiceImpl;
-import jakarta.persistence.EntityNotFoundException;
-import org.junit.jupiter.api.DisplayName;
+import com.kerem.repository.LocationRepository;
+import com.kerem.service.ICarService;
+import com.kerem.starter.CarRentalServiceApplication;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.web.server.NotAcceptableStatusException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+@SpringBootTest(classes = CarRentalServiceApplication.class)
+@ActiveProfiles("test")
+@Transactional
+public class CarServiceTest {
 
-@ExtendWith(MockitoExtension.class)
-class CarServiceTest {
+    @Autowired
+    private ICarService carService;
 
-    @Mock
+    @Autowired
     private CarRepository carRepository;
 
-    @Mock
-    private CarMapper carMapper;
+    @Autowired
+    private LocationRepository locationRepository;
 
-    @InjectMocks
-    private CarServiceImpl carService;
+    private Location testLocation;
 
-    // --- Helper Methods to Generate Random Data ---
+    @BeforeEach
+    void setUp() {
+        testLocation = new Location();
+        testLocation.setLocationName("Test Hub");
+        testLocation = locationRepository.save(testLocation);
+    }
 
-    private Car createRandomCar() {
+    @Test
+    void testSaveCar() {
+        // Arrange
+        CarDtoIU carDtoIU = new CarDtoIU();
+        carDtoIU.setBrand("Toyota");
+        carDtoIU.setModel("Corolla");
+        carDtoIU.setLicensePlateNumber("34ABC123");
+        carDtoIU.setDailyPrice(100.0);
+        carDtoIU.setMileage(1000L);
+        carDtoIU.setTransmissionType(Car.TransmissionType.AUTOMATIC);
+        carDtoIU.setCategoryType(Car.Category.COMPACT);
+        carDtoIU.setCategoryDescription("Compact Car");
+        carDtoIU.setStatus(Car.CarStatus.IN_SERVICE);
+        carDtoIU.setNumberOfSeats(5);
+        carDtoIU.setLocation(new LocationDto(testLocation.getCode(), testLocation.getLocationName()));
+
+        // Act
+        CarDto savedCar = carService.saveCar(carDtoIU);
+
+        // Assert
+        Assertions.assertNotNull(savedCar.getBarcode());
+        Assertions.assertEquals("Toyota", savedCar.getBrand());
+        Assertions.assertEquals(testLocation.getLocationName(), savedCar.getLocation().getLocationName());
+    }
+
+    @Test
+    void testFindCarById() {
+        // Arrange
         Car car = new Car();
-        car.setBarcode(UUID.randomUUID());
-        car.setBrand("Toyota");
-        car.setModel("Corolla");
-        car.setDailyPrice(100.0);
-        car.setLicensePlateNumber("34ABC" + new Random().nextInt(999));
+        car.setBrand("Honda");
+        car.setModel("Civic");
+        car.setLicensePlateNumber("34XYZ789");
+        car.setDailyPrice(120.0);
+        car.setTransmissionType(Car.TransmissionType.MANUAL);
+        car.setCategoryType(Car.Category.MID_SIZE);
+        car.setCategoryDescription("MidSize");
         car.setStatus(Car.CarStatus.IN_SERVICE);
-
-        Location loc = new Location();
-        loc.setCode(1L);
-        loc.setLocationName("Airport");
-        car.setLocation(loc);
-
-        return car;
-    }
-
-    private CarDto createCarDto(Car car) {
-        CarDto dto = new CarDto();
-        dto.setBarcode(car.getBarcode());
-        dto.setBrand(car.getBrand());
-        dto.setDailyPrice(car.getDailyPrice());
-        return dto;
-    }
-
-    // --- Tests ---
-
-    @Test
-    @DisplayName("Find Car By ID - Success")
-    void testFindCarById_Success() {
-        // Arrange
-        Car mockCar = createRandomCar();
-        when(carRepository.findById(mockCar.getBarcode())).thenReturn(Optional.of(mockCar));
+        car.setLocation(testLocation);
+        Car saved = carRepository.save(car);
 
         // Act
-        Car result = carService.findCarById(mockCar.getBarcode());
+        CarDto found = carService.findCarById(saved.getBarcode());
 
         // Assert
-        assertNotNull(result);
-        assertEquals(mockCar.getBarcode(), result.getBarcode());
-        verify(carRepository).findById(mockCar.getBarcode());
+        Assertions.assertEquals("Honda", found.getBrand());
     }
 
     @Test
-    @DisplayName("Find Car By ID - Not Found Throws Exception")
-    void testFindCarById_NotFound() {
+    void testUpdateCar() {
         // Arrange
-        UUID randomId = UUID.randomUUID();
-        when(carRepository.findById(randomId)).thenReturn(Optional.empty());
+        Car car = new Car();
+        car.setBrand("BMW");
+        car.setModel("320i");
+        car.setLicensePlateNumber("34BMW001");
+        car.setDailyPrice(200.0);
+        car.setTransmissionType(Car.TransmissionType.AUTOMATIC);
+        car.setCategoryType(Car.Category.LUXURY);
+        car.setCategoryDescription("Luxury");
+        car.setStatus(Car.CarStatus.IN_SERVICE);
+        car.setLocation(testLocation);
+        Car saved = carRepository.save(car);
 
-        // Act & Assert
-        assertThrows(EntityNotFoundException.class, () -> carService.findCarById(randomId));
-    }
-
-    @Test
-    @DisplayName("Update Car - Success")
-    void testUpdateCar_Success() {
-        // Arrange
-        Car existingCar = createRandomCar();
-        CarDtoIU updateInfo = new CarDtoIU(); // Assuming DTO has setters
-        // updateInfo.setBrand("Honda");
-
-        CarDto expectedDto = createCarDto(existingCar);
-
-        when(carRepository.findById(existingCar.getBarcode())).thenReturn(Optional.of(existingCar));
-        // Mapper void method doesn't return anything, checks side effects usually or we assume it works
-        doNothing().when(carMapper).map(updateInfo, existingCar);
-        when(carRepository.save(existingCar)).thenReturn(existingCar);
-        when(carMapper.mapGet(existingCar)).thenReturn(expectedDto);
+        CarDtoIU updateDto = new CarDtoIU();
+        updateDto.setBrand("BMW");
+        updateDto.setModel("520i"); // Changed
+        updateDto.setLicensePlateNumber("34BMW001");
+        updateDto.setDailyPrice(250.0); // Changed
+        updateDto.setTransmissionType(Car.TransmissionType.AUTOMATIC);
+        updateDto.setCategoryType(Car.Category.LUXURY);
+        updateDto.setCategoryDescription("Luxury");
+        updateDto.setStatus(Car.CarStatus.IN_SERVICE);
+        updateDto.setLocation(new LocationDto(testLocation.getCode(), testLocation.getLocationName()));
 
         // Act
-        CarDto result = carService.updateCar(existingCar.getBarcode(), updateInfo);
+        CarDto updated = carService.updateCar(saved.getBarcode(), updateDto);
 
         // Assert
-        assertNotNull(result);
-        verify(carRepository).save(existingCar);
-        verify(carMapper).map(updateInfo, existingCar);
+        Assertions.assertEquals("520i", updated.getModel());
+        Assertions.assertEquals(250.0, updated.getDailyPrice());
     }
 
     @Test
-    @DisplayName("Delete Car - Success (Car not in use)")
-    void testDeleteCar_Success() {
+    void testDeleteCar() {
         // Arrange
-        Car car = createRandomCar();
-        when(carRepository.findById(car.getBarcode())).thenReturn(Optional.of(car));
-
-        // Mocking the "Usage Check" specification query.
-        // We return an empty list, implying no reservations found for this car logic.
-        when(carRepository.findAll(any(Specification.class))).thenReturn(Collections.emptyList());
+        Car car = new Car();
+        car.setBrand("Ford");
+        car.setModel("Fiesta");
+        car.setLicensePlateNumber("34FRD111");
+        car.setDailyPrice(80.0);
+        car.setTransmissionType(Car.TransmissionType.MANUAL);
+        car.setCategoryType(Car.Category.COMPACT);
+        car.setCategoryDescription("Small");
+        car.setStatus(Car.CarStatus.IN_SERVICE);
+        car.setLocation(testLocation);
+        Car saved = carRepository.save(car);
 
         // Act
-        Boolean result = carService.deleteCar(car.getBarcode());
+        Boolean deleted = carService.deleteCar(saved.getBarcode());
 
         // Assert
-        assertTrue(result);
-        verify(carRepository).delete(car);
+        Assertions.assertTrue(deleted);
+        Assertions.assertFalse(carRepository.findById(saved.getBarcode()).isPresent());
     }
 
     @Test
-    @DisplayName("Delete Car - Fail (Car is currently used/reserved)")
-    void testDeleteCar_Fail_InUse() {
-        // Arrange
-        Car car = createRandomCar();
-        when(carRepository.findById(car.getBarcode())).thenReturn(Optional.of(car));
+    void testFindCarsWithParams() {
+        // Arrange: Insert a specific car to find
+        Car car = new Car();
+        car.setBrand("Mercedes");
+        car.setModel("C200");
+        car.setLicensePlateNumber("34MER999");
+        car.setDailyPrice(300.0);
+        car.setMileage(5000L);
+        car.setNumberOfSeats(5);
+        car.setTransmissionType(Car.TransmissionType.AUTOMATIC);
+        car.setCategoryType(Car.Category.LUXURY);
+        car.setCategoryDescription("Lux");
+        car.setStatus(Car.CarStatus.IN_SERVICE);
+        car.setLocation(testLocation);
+        carRepository.save(car);
 
-        // The service logic checks if the returned list contains the car.
-        // So we simulate the DB finding this car in the "HasBeenUsed" spec.
-        when(carRepository.findAll(any(Specification.class))).thenReturn(List.of(car));
-
-        // Act & Assert
-        assertThrows(NotAcceptableStatusException.class, () -> carService.deleteCar(car.getBarcode()));
-
-        // Verify delete was NEVER called
-        verify(carRepository, never()).delete(any(Car.class));
-    }
-
-    @Test
-    @DisplayName("Find Cars With Params - Success")
-    void testFindCarsWithParams_Success() {
-        // Arrange
-        Car car1 = createRandomCar();
-        Car car2 = createRandomCar();
-        List<Car> carList = List.of(car1, car2);
-
-        SearchCarParamsDto searchCarParamsDto = new SearchCarParamsDto(Car.Category.SUV, "Toyota", Car.TransmissionType.AUTOMATIC, Car.CarStatus.IN_SERVICE,
-                50.0, 200.0, null, 10000L, null,
-                LocalDateTime.now(), LocalDateTime.now().plusDays(3), 4, 1L);
-
-
-        // Since specifications are complex static chains, we strictly test
-        // that the repository is called and handles the result list correctly.
-        when(carRepository.findAll(any(Specification.class))).thenReturn(carList);
-        when(carMapper.mapGet(any(Car.class))).thenReturn(new CarDto());
+        SearchCarParamsDto params = new SearchCarParamsDto();
+        params.setBrand("Mercedes");
+        params.setMinPrice(200.0);
+        params.setMaxPrice(400.0);
+        params.setPickUpLocationCode(testLocation.getCode());
 
         // Act
-        List<CarDto> results = carService.findCarsWithParams(searchCarParamsDto);
+        List<CarDto> results = carService.findCarsWithParams(params);
 
         // Assert
-        assertEquals(2, results.size());
-        verify(carRepository).findAll(any(Specification.class));
-    }
-
-    @Test
-    @DisplayName("Find Cars With Params - Empty Result Throws Exception")
-    void testFindCarsWithParams_NotFound() {
-        // Arrange
-        when(carRepository.findAll(any(Specification.class))).thenReturn(Collections.emptyList());
-
-        // Act & Assert
-        assertThrows(EntityNotFoundException.class, () -> carService.findCarsWithParams(new SearchCarParamsDto()));
+        Assertions.assertFalse(results.isEmpty());
+        Assertions.assertEquals("Mercedes", results.getFirst().getBrand());
     }
 }

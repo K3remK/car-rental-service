@@ -1,54 +1,104 @@
 package com.kerem;
 
-import com.kerem.entities.ExtraService;
+import com.kerem.dto.locationDto.LocationDto;
+import com.kerem.dto.locationDto.LocationDtoIU;
 import com.kerem.entities.Location;
 import com.kerem.repository.LocationRepository;
-import com.kerem.service.impl.LocationServiceImpl;
+import com.kerem.service.ILocationService;
+import com.kerem.starter.CarRentalServiceApplication;
 import jakarta.persistence.EntityNotFoundException;
-import org.hibernate.annotations.DialectOverride;
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest(classes = CarRentalServiceApplication.class)
+@ActiveProfiles("test")
+@Transactional
 public class LocationServiceTest {
 
-    @Mock
+    @Autowired
+    private ILocationService locationService;
+
+    @Autowired
     private LocationRepository locationRepository;
 
-    @InjectMocks
-    private LocationServiceImpl locationService;
-
     @Test
-    @DisplayName(value = "Get Location By ID - Success")
-    void getLocationById_Success() {
-        Location location = new Location();
-        location.setCode(1L);
+    void testSaveLocation() {
+        // Arrange
+        LocationDtoIU locationDtoIU = new LocationDtoIU();
+        locationDtoIU.setLocationName("Istanbul Airport");
 
-        when(locationRepository.findById(location.getCode())).thenReturn(Optional.of(location));
+        // Act
+        LocationDto savedLocation = locationService.saveLocation(locationDtoIU);
 
-        Location result = locationService.getLocationById(location.getCode());
+        // Assert
+        Assertions.assertNotNull(savedLocation.getCode());
+        Assertions.assertEquals("Istanbul Airport", savedLocation.getLocationName());
 
-        assertNotNull(result);
-        assertEquals(location.getCode(), result.getCode());
-        verify(locationRepository).findById(location.getCode());
+        // Verify in DB
+        Assertions.assertTrue(locationRepository.findById(savedLocation.getCode()).isPresent());
     }
 
     @Test
-    @DisplayName(value = "Get Location By ID - Throw EntityNotFound Exception")
-    void getLocationById_ThrowEntityNotFoundException() {
-        Long nonExistentId = 1L;
-        when(locationRepository.findById(nonExistentId)).thenReturn(Optional.empty());
+    void testGetLocations() {
+        // Arrange
+        Location loc1 = new Location();
+        loc1.setLocationName("Sabiha Gokcen");
+        locationRepository.save(loc1);
 
-        assertThrows(EntityNotFoundException.class, () -> locationService.getLocationById(nonExistentId));
+        Location loc2 = new Location();
+        loc2.setLocationName("Esenboga");
+        locationRepository.save(loc2);
+
+        // Act
+        List<LocationDto> locations = locationService.getLocations();
+
+        // Assert
+        Assertions.assertTrue(locations.size() >= 2);
+    }
+
+    @Test
+    void testGetLocationById() {
+        // Arrange
+        Location loc = new Location();
+        loc.setLocationName("Antalya Airport");
+        Location saved = locationRepository.save(loc);
+
+        // Act
+        LocationDto found = locationService.getLocationById(saved.getCode());
+
+        // Assert
+        Assertions.assertEquals("Antalya Airport", found.getLocationName());
+    }
+
+    @Test
+    void testGetLocationById_NotFound() {
+        Assertions.assertThrows(EntityNotFoundException.class, () -> locationService.getLocationById(9999L));
+    }
+
+    @Test
+    void testUpdateLocation() {
+        // Arrange
+        Location loc = new Location();
+        loc.setLocationName("Old Name");
+        Location saved = locationRepository.save(loc);
+
+        LocationDtoIU updateDto = new LocationDtoIU();
+        updateDto.setLocationName("New Name");
+
+        // Act
+        LocationDto updated = locationService.updateLocation(saved.getCode(), updateDto);
+
+        // Assert
+        Assertions.assertEquals("New Name", updated.getLocationName());
+
+        // Verify DB
+        Location dbLocation = locationRepository.findById(saved.getCode()).orElseThrow();
+        Assertions.assertEquals("New Name", dbLocation.getLocationName());
     }
 }

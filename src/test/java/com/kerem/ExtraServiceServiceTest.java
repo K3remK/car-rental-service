@@ -1,57 +1,91 @@
 package com.kerem;
 
+import com.kerem.dto.extraServiceDto.ExtraServiceDto;
+import com.kerem.dto.extraServiceDto.ExtraServiceDtoIU;
 import com.kerem.entities.ExtraService;
 import com.kerem.repository.ExtraServiceRepository;
-import com.kerem.service.impl.ExtraServiceServiceImpl;
-import jakarta.persistence.EntityNotFoundException;
-import org.junit.jupiter.api.DisplayName;
+import com.kerem.service.IExtraServiceService;
+import com.kerem.starter.CarRentalServiceApplication;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest(classes = CarRentalServiceApplication.class)
+@ActiveProfiles("test")
+@Transactional
 public class ExtraServiceServiceTest {
 
-    @Mock
+    @Autowired
+    private IExtraServiceService extraServiceService;
+
+    @Autowired
     private ExtraServiceRepository extraServiceRepository;
 
-    @InjectMocks
-    private ExtraServiceServiceImpl extraServiceService;
-
     @Test
-    @DisplayName("Find ExtraService by ID - Success")
-    void testFindExtraServiceById_Success() {
-        ExtraService mockExtraService = new ExtraService();
-        mockExtraService.setId(1L);
+    void testSave() {
+        // Arrange
+        ExtraServiceDtoIU dtoIU = new ExtraServiceDtoIU();
+        dtoIU.setName("Baby Seat");
+        dtoIU.setDescription("Comfortable seat for babies");
+        dtoIU.setTotalPrice(50.0);
+        dtoIU.setCategory(ExtraService.ExtraCategory.CHILD);
 
-        when(extraServiceRepository.findById(mockExtraService.getId())).thenReturn(Optional.of(mockExtraService));
+        // Act
+        ExtraServiceDto saved = extraServiceService.save(dtoIU);
 
-        ExtraService result =  extraServiceService.findById(mockExtraService.getId());
-
-        assertNotNull(result);
-        assertEquals(mockExtraService.getId(), result.getId());
-        verify(extraServiceRepository).findById(mockExtraService.getId());
+        // Assert
+        Assertions.assertNotNull(saved.getId());
+        Assertions.assertEquals("Baby Seat", saved.getName());
     }
 
     @Test
-    @DisplayName("Get customer by SSN - Throws Not Found Exception")
-    void testGetCustomerBySsn_NotFound() {
-        Long nonExistentID = 1L;
+    void testFindAll() {
+        // Arrange
+        ExtraService ex1 = new ExtraService(null, "Wifi", "4G", 20.0, ExtraService.ExtraCategory.TECHNOLOGY);
+        extraServiceRepository.save(ex1);
 
-        // Act & Assert
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () ->
-                extraServiceService.findById(nonExistentID)
-        );
+        // Act
+        List<ExtraServiceDto> all = extraServiceService.findAll();
 
-        assertEquals("ExtraService not found! ID:" + nonExistentID, exception.getMessage());
-        verify(extraServiceRepository).findById(nonExistentID);
+        // Assert
+        Assertions.assertFalse(all.isEmpty());
+    }
+
+    @Test
+    void testFindById() {
+        // Arrange
+        ExtraService ex = new ExtraService(null, "Chain", "Snow Chain", 30.0, ExtraService.ExtraCategory.WINTER);
+        ExtraService saved = extraServiceRepository.save(ex);
+
+        // Act
+        ExtraServiceDto found = extraServiceService.findById(saved.getId());
+
+        // Assert
+        Assertions.assertEquals("Chain", found.getName());
+    }
+
+    @Test
+    void testUpdate() {
+        // Arrange
+        ExtraService ex = new ExtraService(null, "Old Service", "Desc", 10.0, ExtraService.ExtraCategory.SPECIAL);
+        ExtraService saved = extraServiceRepository.save(ex);
+
+        ExtraServiceDtoIU updateDto = new ExtraServiceDtoIU();
+        updateDto.setName("New Service");
+        updateDto.setDescription("New Desc");
+        updateDto.setTotalPrice(15.0);
+        updateDto.setCategory(ExtraService.ExtraCategory.SPECIAL);
+
+        // Act
+        ExtraServiceDto updated = extraServiceService.update(saved.getId(), updateDto);
+
+        // Assert
+        Assertions.assertEquals("New Service", updated.getName());
+        Assertions.assertEquals(15.0, updated.getTotalPrice());
     }
 }

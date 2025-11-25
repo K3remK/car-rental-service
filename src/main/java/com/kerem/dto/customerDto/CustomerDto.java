@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -26,5 +27,5 @@ public class CustomerDto {
 
     private String drivingLicenseNumber;
 
-    List<ReservationDto> reservations;
+    List<ReservationDto> reservations = new ArrayList<>();
 }

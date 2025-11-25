@@ -1,7 +1,7 @@
 package com.kerem.exception;
 
+import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -22,6 +22,19 @@ import java.util.stream.Collectors;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+    /*
+* Code,Constant,Meaning,When to use
+    200,HttpStatus.OK,OK,Standard successful GET/PUT.
+    201,HttpStatus.CREATED,Created,Successful POST (creation).
+    204,HttpStatus.NO_CONTENT,No Content,Successful DELETE (nothing to return).
+    400,HttpStatus.BAD_REQUEST,Bad Request,Validation failed or invalid input.
+    401,HttpStatus.UNAUTHORIZED,Unauthorized,User is not logged in.
+    403,HttpStatus.FORBIDDEN,Forbidden,User is logged in but lacks permission.
+    404,HttpStatus.NOT_FOUND,Not Found,Resource doesn't exist.
+    500,HttpStatus.INTERNAL_SERVER_ERROR,Server Error,Uncaught exception/crash.
+*/
+
+
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
     public ResponseEntity<APIError<Map<String, List<String>>>> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
 
@@ -34,6 +47,11 @@ public class GlobalExceptionHandler {
                 ));
 
         return ResponseEntity.badRequest().body(createApiError(errors));
+    }
+
+    @ExceptionHandler(value = EntityExistsException.class)
+    public ResponseEntity<APIError<String>> handleEntityExistsException(EntityExistsException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(createApiError(ex.getMessage()));
     }
 
     @ExceptionHandler(value = EntityNotFoundException.class)

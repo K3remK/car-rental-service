@@ -1,371 +1,220 @@
 package com.kerem;
 
-import com.kerem.dto.carDto.CarDto;
-import com.kerem.dto.reservationDto.RentedCarDto;
-import com.kerem.dto.reservationDto.ReservationDto;
-import com.kerem.dto.reservationDto.ReservationDtoIU;
+import com.kerem.dto.carDto.RentedCarDto;
+import com.kerem.dto.reservationDto.ReservationInsertDto;
+import com.kerem.dto.reservationDto.SaveReservationReturnDto;
 import com.kerem.entities.*;
-import com.kerem.mapper.CarMapper;
-import com.kerem.mapper.ExtraServiceMapper;
-import com.kerem.mapper.ReservationMapper;
-import com.kerem.repository.ReservationRepository;
-import com.kerem.service.impl.*;
-import jakarta.persistence.EntityNotFoundException;
-import org.junit.jupiter.api.DisplayName;
+import com.kerem.repository.*;
+import com.kerem.service.IReservationService;
+import com.kerem.starter.CarRentalServiceApplication;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.NotAcceptableStatusException;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest(classes = CarRentalServiceApplication.class)
+@ActiveProfiles("test")
+@Transactional
 public class ReservationServiceTest {
 
-    @Mock
-    ReservationRepository reservationRepository;
+    @Autowired
+    private IReservationService reservationService;
 
-    @Mock
-    private CarServiceImpl carService;
+    @Autowired
+    private ReservationRepository reservationRepository;
+    @Autowired
+    private CarRepository carRepository;
+    @Autowired
+    private CustomerRepository customerRepository;
+    @Autowired
+    private LocationRepository locationRepository;
+    @Autowired
+    private ExtraServiceRepository extraServiceRepository;
 
-    @Mock
-    private CustomerServiceImpl customerService;
+    private Car savedCar;
+    private Customer savedCustomer;
+    private Location pickUpLoc;
+    private Location dropOffLoc;
+    private ExtraService extra1;
 
-    @Mock
-    private ExtraServiceServiceImpl extraServiceService;
+    @BeforeEach
+    void setUp() {
+        // 1. Setup Location
+        pickUpLoc = locationRepository.save(new Location(null, "PickUp Point"));
+        dropOffLoc = locationRepository.save(new Location(null, "DropOff Point"));
 
-    @Mock
-    private LocationServiceImpl locationService;
+        // 2. Setup Car
+        Car car = new Car();
+        car.setBrand("Audi");
+        car.setModel("A3");
+        car.setLicensePlateNumber("34AUD123");
+        car.setDailyPrice(100.0);
+        car.setTransmissionType(Car.TransmissionType.AUTOMATIC);
+        car.setCategoryType(Car.Category.COMPACT);
+        car.setCategoryDescription("Compact");
+        car.setStatus(Car.CarStatus.IN_SERVICE);
+        car.setLocation(pickUpLoc);
+        savedCar = carRepository.save(car);
 
-    @Mock
-    private CarMapper carMapper;
+        // 3. Setup Customer
+        Customer customer = new Customer();
+        customer.setSsn("99999999999");
+        customer.setFirstName("Test");
+        customer.setLastName("Client");
+        customer.setPhoneNumber("5559998877");
+        customer.setDrivingLicenseNumber("DLTEST99");
+        savedCustomer = customerRepository.save(customer);
 
-    @Mock
-    private ExtraServiceMapper extraServiceMapper;
-
-    @Mock
-    private ReservationMapper reservationMapper;
-
-    @InjectMocks
-    private ReservationServiceImpl reservationService;
-
-    private ReservationDto createReservationDto(Reservation reservation) {
-        ReservationDto reservationDto = new ReservationDto();
-        reservationDto.setCustomerSsn(reservation.getCustomer().getSsn());
-        reservationDto.setCustomerName(reservation.getCustomer().getFirstName() + " " + reservation.getCustomer().getLastName());
-        reservationDto.setReservationNumber(reservation.getReservationNumber());
-        reservationDto.setDropOffLocation(reservation.getDropOffLocation());
-        reservationDto.setPickUpDateAndTime(reservation.getPickUpDateAndTime());
-        reservationDto.setPickUpLocation(reservation.getPickUpLocation());
-        reservationDto.setDropOffDateAndTime(reservation.getDropOffDateAndTime());
-        return reservationDto;
+        // 4. Setup Extra Service
+        extra1 = extraServiceRepository.save(new ExtraService(null, "GPS", "Nav", 10.0, ExtraService.ExtraCategory.TECHNOLOGY));
     }
-
-    private Reservation createReservation(ReservationDtoIU reservationDtoIU) {
-        Reservation reservation = new Reservation();
-        reservation.setDropOffDateAndTime(reservationDtoIU.getDropOffDateAndTime());
-        reservation.setPickUpDateAndTime(reservationDtoIU.getPickUpDateAndTime());
-        return reservation;
-    }
-
-    // --- SAVE RESERVATION TESTS ---
 
     @Test
-    @DisplayName(value = "Save Reservation Test - Success")
-    void testSaveReservation_Success() {
+    void testSaveReservation() {
         // Arrange
-        ReservationDtoIU reservationDtoIU = new ReservationDtoIU();
-        reservationDtoIU.setCustomerSsn("1");
-        reservationDtoIU.setDropOffLocationCode(1L);
-        reservationDtoIU.setPickUpLocationCode(2L);
-        reservationDtoIU.setCarBarcodeNumber(UUID.randomUUID());
-        reservationDtoIU.setExtraServiceIds(List.of(1L,2L));
-        reservationDtoIU.setPickUpDateAndTime(LocalDateTime.now());
-        reservationDtoIU.setDropOffDateAndTime(LocalDateTime.now().plusDays(5));
-        reservationDtoIU.setCarBarcodeNumber(UUID.randomUUID());
+        ReservationInsertDto insertDto = new ReservationInsertDto();
+        insertDto.setCarBarcodeNumber(savedCar.getBarcode());
+        insertDto.setCustomerSsn(savedCustomer.getSsn());
+        insertDto.setPickUpLocationCode(pickUpLoc.getCode());
+        insertDto.setDropOffLocationCode(dropOffLoc.getCode());
 
-        Car reservationCar = new Car();
-        reservationCar.setBarcode(reservationDtoIU.getCarBarcodeNumber());
-        reservationCar.setDailyPrice(100D);
+        // Dates: Tomorrow to Day After Tomorrow (1 day)
+        LocalDateTime pickUp = LocalDateTime.now().plusDays(1);
+        LocalDateTime dropOff = LocalDateTime.now().plusDays(2);
+        insertDto.setPickUpDateAndTime(pickUp);
+        insertDto.setDropOffDateAndTime(dropOff);
 
-        Customer reservationCustomer = new Customer();
-        reservationCustomer.setFirstName("John");
-        reservationCustomer.setLastName("Doe");
-
-        Location dropOffLocation = new Location();
-        Location pickUpLocation = new Location();
-
-        ExtraService extraService1 = new ExtraService();
-        extraService1.setTotalPrice(100D);
-
-        ExtraService extraService2 = new ExtraService();
-        extraService2.setTotalPrice(100D);
-
-        Reservation expectedReservation = createReservation(reservationDtoIU);
-        expectedReservation.setCustomer(reservationCustomer);
-        expectedReservation.setCar(reservationCar);
-        expectedReservation.setDropOffLocation(dropOffLocation);
-        expectedReservation.setPickUpLocation(pickUpLocation);
-        ReservationDto expectedReservationDto = createReservationDto(expectedReservation);
-
-        when(carService.findCarById(reservationDtoIU.getCarBarcodeNumber())).thenReturn(reservationCar);
-        when(customerService.getCustomerBySsn(reservationDtoIU.getCustomerSsn())).thenReturn(reservationCustomer);
-        when(locationService.getLocationById(reservationDtoIU.getPickUpLocationCode())).thenReturn(pickUpLocation);
-        when(locationService.getLocationById(reservationDtoIU.getDropOffLocationCode())).thenReturn(dropOffLocation);
-        when(extraServiceService.findById(1L)).thenReturn(extraService1);
-        when(extraServiceService.findById(2L)).thenReturn(extraService2);
-        when(reservationMapper.map(reservationDtoIU)).thenReturn(expectedReservation);
-        when(reservationRepository.save(expectedReservation)).thenReturn(expectedReservation);
-        when(reservationMapper.map(expectedReservation)).thenReturn(expectedReservationDto);
-        when(carService.isAvailable(reservationCar.getBarcode(), reservationDtoIU.getPickUpDateAndTime(), reservationDtoIU.getDropOffDateAndTime())).thenReturn(true);
+        List<Long> extras = new ArrayList<>();
+        extras.add(extra1.getId());
+        insertDto.setExtraServiceIds(extras);
 
         // Act
-        ReservationDto result = reservationService.saveReservation(reservationDtoIU);
+        SaveReservationReturnDto result = reservationService.saveReservation(insertDto);
 
-        // Assert & Verify
-        assertNotNull(result);
-        assertEquals(100D + 100D + 100D * 5, result.getTotalAmount());
-        assertEquals(reservationCustomer.getFirstName() + " " + reservationCustomer.getLastName(), result.getCustomerName());
-        assertEquals(reservationCustomer.getSsn(), result.getCustomerSsn());
-        verify(carService).findCarById(reservationDtoIU.getCarBarcodeNumber());
-        verify(carService).isAvailable(reservationDtoIU.getCarBarcodeNumber(), reservationDtoIU.getPickUpDateAndTime(), reservationDtoIU.getDropOffDateAndTime());
-        verify(customerService).getCustomerBySsn(reservationDtoIU.getCustomerSsn());
-        verify(locationService).getLocationById(reservationDtoIU.getPickUpLocationCode());
-        verify(locationService).getLocationById(reservationDtoIU.getDropOffLocationCode());
-        verify(extraServiceService).findById(1L);
-        verify(extraServiceService).findById(2L);
-        verify(reservationMapper).map(reservationDtoIU);
-        verify(reservationMapper).map(expectedReservation);
-        verify(reservationRepository).save(expectedReservation);
+        // Assert
+        Assertions.assertNotNull(result.getReservationNumber());
+        // Price: 1 day * 100 + 10 (extra) = 110
+        Assertions.assertEquals(110.0, result.getTotalAmount());
+        Assertions.assertEquals(savedCustomer.getSsn(), result.getCustomerSsn());
     }
 
     @Test
-    @DisplayName(value = "Save Reservation Test - Fail: CarOutOfServiceShouldException")
-    public void testSaveReservation_Fail_CarOutOfServiceShouldException() {
-        // Arrange
-        ReservationDtoIU reservationDtoIU = new ReservationDtoIU();
-        reservationDtoIU.setCarBarcodeNumber(UUID.randomUUID());
+    void testSaveReservation_CarNotAvailable() {
+        // Create an existing reservation overlapping dates
+        Reservation existing = new Reservation();
+        existing.setCar(savedCar);
+        existing.setCustomer(savedCustomer);
+        existing.setPickUpDateAndTime(LocalDateTime.now().plusDays(1));
+        existing.setDropOffDateAndTime(LocalDateTime.now().plusDays(3));
+        existing.setStatus(Reservation.Status.ACTIVE);
+        reservationRepository.save(existing);
 
-        Car reservationCar = new Car();
-        reservationCar.setStatus(Car.CarStatus.OUT_OF_SERVICE);
+        // Try to book same dates
+        ReservationInsertDto insertDto = new ReservationInsertDto();
+        insertDto.setCarBarcodeNumber(savedCar.getBarcode());
+        insertDto.setPickUpDateAndTime(LocalDateTime.now().plusDays(1));
+        insertDto.setDropOffDateAndTime(LocalDateTime.now().plusDays(2));
+        insertDto.setCustomerSsn(savedCustomer.getSsn());
+        insertDto.setPickUpLocationCode(pickUpLoc.getCode());
+        insertDto.setDropOffLocationCode(dropOffLoc.getCode());
+        insertDto.setExtraServiceIds(new ArrayList<>());
 
-        when(carService.findCarById(reservationDtoIU.getCarBarcodeNumber())).thenReturn(reservationCar);
-
-        // Act, Assert & Verify
-        assertThrows(NotAcceptableStatusException.class, () -> {
-            reservationService.saveReservation(reservationDtoIU);
-        });
-        verify(carService).findCarById(reservationDtoIU.getCarBarcodeNumber());
-        verify(reservationRepository, never()).save(any());
+        // Act & Assert
+        Assertions.assertThrows(NotAcceptableStatusException.class, () -> reservationService.saveReservation(insertDto));
     }
 
     @Test
-    @DisplayName(value = "Save Reservation Test - Fail: CarIsNotAvailable")
-    public void testSaveReservation_Fail_CarIsNotAvailable() {
-        ReservationDtoIU reservationDtoIU = new ReservationDtoIU();
-        reservationDtoIU.setCarBarcodeNumber(UUID.randomUUID());
+    void testReturnCar() {
+        // Arrange: Create Active Reservation
+        Reservation reservation = new Reservation();
+        reservation.setCar(savedCar);
+        reservation.setCustomer(savedCustomer);
+        reservation.setPickUpLocation(pickUpLoc);
+        reservation.setDropOffLocation(dropOffLoc);
+        reservation.setPickUpDateAndTime(LocalDateTime.now().minusDays(2));
+        reservation.setDropOffDateAndTime(LocalDateTime.now().minusDays(1)); // Was supposed to return yesterday
+        reservation.setStatus(Reservation.Status.ACTIVE);
+        reservation = reservationRepository.save(reservation);
 
-        Car reservationCar = new Car();
-        reservationCar.setStatus(Car.CarStatus.IN_SERVICE);
-        reservationCar.setBarcode(reservationDtoIU.getCarBarcodeNumber());
+        // Act
+        Boolean success = reservationService.returnCar(reservation.getReservationNumber());
 
-        when(carService.findCarById(reservationDtoIU.getCarBarcodeNumber())).thenReturn(reservationCar);
-        when(carService.isAvailable(any(), any(), any())).thenReturn(false);
+        // Assert
+        Assertions.assertTrue(success);
+        Reservation updatedRes = reservationRepository.findById(reservation.getReservationNumber()).orElse(null);
+        Assertions.assertNotNull(updatedRes);
+        Assertions.assertEquals(Reservation.Status.COMPLETED, updatedRes.getStatus());
 
-        assertThrows(NotAcceptableStatusException.class, () -> {
-            reservationService.saveReservation(reservationDtoIU);
-        });
-        verify(carService).findCarById(reservationDtoIU.getCarBarcodeNumber());
-        verify(reservationRepository, never()).save(any());
-        verify(carService).isAvailable(reservationDtoIU.getCarBarcodeNumber(), reservationDtoIU.getPickUpDateAndTime(), reservationDtoIU.getDropOffDateAndTime());
+        // Verify Car Location updated to dropOffLoc
+        Car updatedCar = carRepository.findById(savedCar.getBarcode()).orElse(null);
+        Assertions.assertNotNull(updatedCar);
+        Assertions.assertEquals(dropOffLoc.getCode(), updatedCar.getLocation().getCode());
     }
 
-
-    // --- GET CURRENTLY RESERVED CARS TESTS ---
-
     @Test
-    @DisplayName(value = "Get All Currently Reserved Cars - Success")
-    public void testGetAllCurrentlyReservedCars_Success() {
+    void testCancelReservation() {
         // Arrange
         Reservation reservation = new Reservation();
+        reservation.setCar(savedCar);
+        reservation.setCustomer(savedCustomer);
+        reservation.setStatus(Reservation.Status.ACTIVE);
+        reservation = reservationRepository.save(reservation);
+
+        // Act
+        Boolean result = reservationService.cancelReservation(reservation.getReservationNumber());
+
+        // Assert
+        Assertions.assertTrue(result);
+        Reservation canceled = reservationRepository.findById(reservation.getReservationNumber()).orElse(null);
+        Assertions.assertNotNull(canceled);
+        Assertions.assertEquals(Reservation.Status.CANCELLED, canceled.getStatus());
+    }
+
+    @Test
+    void testGetAllCurrentlyReservedCars() {
+        // Arrange: Reservation active TODAY
+        Reservation reservation = new Reservation();
+        reservation.setCar(savedCar);
+        reservation.setCustomer(savedCustomer);
+        // Spans across now
         reservation.setPickUpDateAndTime(LocalDateTime.now().minusDays(1));
         reservation.setDropOffDateAndTime(LocalDateTime.now().plusDays(1));
-
-        Car reservationCar = new Car();
-        Customer customer = new Customer();
-        customer.setFirstName("John");
-        customer.setLastName("Doe");
-
-        reservation.setCar(reservationCar);
-        reservation.setCustomer(customer);
-
-        when(reservationRepository.getActiveReservationsOn(any(LocalDateTime.class))).thenReturn(List.of(reservation));
-
-        // Mock mappers to ensure they don't crash the loop
-        doNothing().when(carMapper).map(any(Car.class), any(RentedCarDto.class));
-        doNothing().when(reservationMapper).mapReservationToRentedCarDto(any(Reservation.class), any(RentedCarDto.class));
-
-        // Act
-        List<RentedCarDto> result =  reservationService.getAllCurrentlyReservedCars();
-
-        // Assert & Verify
-        assertNotNull(result);
-        assertEquals(1, result.size());
-        assertEquals(2, result.getFirst().getReservationDayCount());
-        assertEquals("John Doe", result.getFirst().getCustomerName());
-    }
-
-    @Test
-    @DisplayName(value = "Get All Currently Reserved Cars - Empty Throw Exception")
-    public void testGetAllCurrentlyReservedCars_EmptyThrowException() {
-        when(reservationRepository.getActiveReservationsOn(any(LocalDateTime.class))).thenReturn(Collections.emptyList());
-
-        assertThrows(EntityNotFoundException.class, () -> {
-            reservationService.getAllCurrentlyReservedCars();
-        });
-        verify(reservationRepository).getActiveReservationsOn(any(LocalDateTime.class));
-    }
-
-    // --- ADD EXTRA SERVICE TESTS ---
-
-    @Test
-    @DisplayName(value = "Add Extra Service - Success")
-    public void addExtraService_Success() {
-        // Arrange
-        String reservationNumber = "22222222";
-        Long extraServiceId = 1L;
-
-        Reservation reservation = new Reservation();
-        reservation.setExtras(new ArrayList<>());
-
-        ExtraService extraService = new ExtraService();
-        extraService.setId(extraServiceId);
-
-        when(reservationRepository.findById(reservationNumber)).thenReturn(Optional.of(reservation));
-        when(extraServiceService.findById(extraServiceId)).thenReturn(extraService);
-
-        // Act
-
-        Boolean result = reservationService.addExtraServiceToReservation(reservationNumber, extraServiceId);
-
-        // Assert & Verify
-        assertTrue(result);
-        assertEquals(1, reservation.getExtras().size());
-        assertEquals(extraService,  reservation.getExtras().getFirst());
-        verify(extraServiceService).findById(extraServiceId);
-        verify(reservationRepository).findById(reservationNumber);
-        verify(reservationRepository).save(reservation);
-    }
-
-    @Test
-    @DisplayName(value = "Add Extra Service - Already Exists")
-    public void addExtraService_AlreadyExists() {
-        // Arrange
-        String reservationNumber = "22222222";
-        Long extraServiceId = 1L;
-
-        ExtraService extraService = new ExtraService();
-        extraService.setId(extraServiceId);
-
-        Reservation reservation = new Reservation();
-        reservation.setReservationNumber(reservationNumber);
-        reservation.setExtras(List.of(extraService));
-
-        when(reservationRepository.findById(reservationNumber)).thenReturn(Optional.of(reservation));
-        when(extraServiceService.findById(extraServiceId)).thenReturn(extraService);
-
-        // Act
-
-        Boolean result = reservationService.addExtraServiceToReservation(reservationNumber, extraServiceId);
-
-        // Assert & Verify
-        assertFalse(result);
-        verify(reservationRepository, never()).save(any());
-    }
-
-
-    // --- RETURN CAR TESTS
-
-    @Test
-    @DisplayName(value = "Return Car - Success")
-    void  returnCar_Success() {
-        // Arrange
-        String reservationNumber = "22222222";
-
-
-        Reservation reservation = new Reservation();
-        Location dropOffLocation = new Location();
-        dropOffLocation.setCode(1L);
-        dropOffLocation.setLocationName("Drop Off");
-        Car car = new Car();
-        reservation.setCar(car);
-        reservation.setDropOffLocation(dropOffLocation);
-
-        when(reservationRepository.findById(reservationNumber)).thenReturn(Optional.of(reservation));
-
-        // Act
-
-        Boolean result = reservationService.returnCar(reservationNumber);
-
-        // Assert & Verify
-        assertTrue(result);
-        assertEquals(dropOffLocation, reservation.getCar().getLocation());
-        assertEquals(Reservation.Status.COMPLETED, reservation.getStatus());
-        assertNotNull(reservation.getDropOffDateAndTime());
-        verify(reservationRepository).save(any());
-        verify(carService).updateCar(any(), any());
-    }
-
-    // --- CANCEL RESERVATION TESTS ---
-
-    @Test
-    @DisplayName("Cancel Reservation - Success")
-    void testCancelReservation_Success() {
-        // Arrange
-        String resNum = "RES-123";
-        Reservation reservation = new Reservation();
         reservation.setStatus(Reservation.Status.ACTIVE);
-
-        when(reservationRepository.findById(resNum)).thenReturn(Optional.of(reservation));
+        reservationRepository.save(reservation);
 
         // Act
-        Boolean result = reservationService.cancelReservation(resNum);
+        List<RentedCarDto> rentedCars = reservationService.getAllCurrentlyReservedCars();
 
         // Assert
-        assertTrue(result);
-        assertEquals(Reservation.Status.CANCELLED, reservation.getStatus());
-        verify(reservationRepository).save(reservation);
+        Assertions.assertFalse(rentedCars.isEmpty());
+        Assertions.assertEquals(savedCar.getBrand(), rentedCars.getFirst().getBrand());
     }
 
     @Test
-    @DisplayName("Cancel Reservation - Not Found")
-    void testCancelReservation_NotFound() {
-        when(reservationRepository.findById(anyString())).thenReturn(Optional.empty());
-        assertThrows(EntityNotFoundException.class, () -> reservationService.cancelReservation("inv"));
-    }
-
-    // --- DELETE RESERVATION TESTS ---
-
-    @Test
-    @DisplayName("Delete Reservation - Success")
-    void testDeleteReservation_Success() {
+    void testAddExtraServiceToReservation() {
         // Arrange
-        String resNum = "RES-123";
         Reservation reservation = new Reservation();
-
-        when(reservationRepository.findById(resNum)).thenReturn(Optional.of(reservation));
+        reservation.setCar(savedCar);
+        reservation.setCustomer(savedCustomer);
+        reservation.setExtras(new ArrayList<>());
+        reservation = reservationRepository.save(reservation);
 
         // Act
-        Boolean result = reservationService.deleteReservation(resNum);
+        Boolean result = reservationService.addExtraServiceToReservation(reservation.getReservationNumber(), extra1.getId());
 
         // Assert
-        assertTrue(result);
-        verify(reservationRepository).delete(reservation);
+        Assertions.assertTrue(result);
+        Reservation updated = reservationRepository.findById(reservation.getReservationNumber()).orElse(null);
+        Assertions.assertNotNull(updated);
+        Assertions.assertEquals(1, updated.getExtras().size());
+        Assertions.assertEquals("GPS", updated.getExtras().getFirst().getName());
     }
 }

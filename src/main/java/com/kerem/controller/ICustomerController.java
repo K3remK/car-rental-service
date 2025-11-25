@@ -1,10 +1,9 @@
 package com.kerem.controller;
 
-import com.kerem.entities.Customer;
-
-import java.util.List;
+import com.kerem.dto.customerDto.CustomerDto;
+import org.springframework.http.ResponseEntity;
 
 public interface ICustomerController {
 
-    Customer getCustomerBySsn(String ssn);
+    ResponseEntity<CustomerDto> getCustomerBySsn(String ssn);
 }

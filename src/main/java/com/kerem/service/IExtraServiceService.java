@@ -1,8 +1,16 @@
 package com.kerem.service;
 
 import com.kerem.dto.extraServiceDto.ExtraServiceDto;
-import com.kerem.entities.ExtraService;
+import com.kerem.dto.extraServiceDto.ExtraServiceDtoIU;
+
+import java.util.List;
 
 public interface IExtraServiceService {
-    ExtraService findById(Long id);
+    // Get
+    List<ExtraServiceDto> findAll();
+    ExtraServiceDto findById(Long id);
+
+    // Update, Save
+    ExtraServiceDto update(Long id, ExtraServiceDtoIU extraServiceDtoIU);
+    ExtraServiceDto save(ExtraServiceDtoIU extraServiceDtoIU);
 }

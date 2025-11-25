@@ -4,7 +4,6 @@ import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -13,11 +12,10 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ReservationDtoIU {
+public class ReservationInsertDto {
     
     @NotNull(message = "carBarcodeNumber cannot be null!")
     private UUID carBarcodeNumber;
-
 
     @NotNull(message = "pickUpDateAndTime cannot be null!")
     private LocalDateTime pickUpDateAndTime;

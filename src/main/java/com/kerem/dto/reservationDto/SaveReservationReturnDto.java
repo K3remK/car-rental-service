@@ -1,28 +1,22 @@
 package com.kerem.dto.reservationDto;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.kerem.entities.*;
+import com.kerem.entities.Location;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReservationDto {
+public class SaveReservationReturnDto {
 
     private String reservationNumber;
-
-    private LocalDateTime creationDate;
 
     private LocalDateTime pickUpDateAndTime;
 
     private LocalDateTime dropOffDateAndTime;
-
-    private Reservation.Status status;
 
     private Location pickUpLocation;
 
@@ -30,11 +24,7 @@ public class ReservationDto {
 
     private Double totalAmount;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Customer customer;
+    private String customerSsn;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Car car;
-
-    private List<ExtraService> extras;
+    private String customerName;
 }

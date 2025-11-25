@@ -1,4 +1,4 @@
-package com.kerem.dto.reservationDto;
+package com.kerem.dto.carDto;
 
 import com.kerem.dto.locationDto.LocationDto;
 import com.kerem.entities.Car;

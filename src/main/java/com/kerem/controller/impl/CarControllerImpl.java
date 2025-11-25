@@ -15,19 +15,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
-/*
-* Code,Constant,Meaning,When to use
-    200,HttpStatus.OK,OK,Standard successful GET/PUT.
-    201,HttpStatus.CREATED,Created,Successful POST (creation).
-    204,HttpStatus.NO_CONTENT,No Content,Successful DELETE (nothing to return).
-    400,HttpStatus.BAD_REQUEST,Bad Request,Validation failed or invalid input.
-    401,HttpStatus.UNAUTHORIZED,Unauthorized,User is not logged in.
-    403,HttpStatus.FORBIDDEN,Forbidden,User is logged in but lacks permission.
-    404,HttpStatus.NOT_FOUND,Not Found,Resource doesn't exist.
-    500,HttpStatus.INTERNAL_SERVER_ERROR,Server Error,Uncaught exception/crash.
-*/
-
-
 @RestController
 @RequestMapping(path = "/rentacar/api/cars")
 @RequiredArgsConstructor
