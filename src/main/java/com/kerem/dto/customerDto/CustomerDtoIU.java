@@ -3,7 +3,7 @@ package com.kerem.dto.customerDto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,24 +13,31 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CustomerDtoIU {
     @NotNull(message = "Customer SSN can't be null!")
-    @NotEmpty(message = "Customer SSN can't be empty!")
-    @Size(min = 11, max = 11)
+    @Pattern(regexp = "^[1-9]\\d{10}$", message = "Ssn should be 11 character containing only digits and cannot start with 0!")
     private String ssn;
 
-    @Size(min = 2, max = 20)
+    @NotNull(message = "firstName cannot be null or empty!")
+    @Pattern(regexp = "^\\p{L}{2,20}$", message = "Name must contain only letters with min length of 2 and max of 20")
     private String firstName;
 
-    @Size(min = 2, max = 20)
+    @NotNull(message = "lastName cannot be null!")
+    @Pattern(regexp = "^\\p{L}{2,20}$", message = "Name must contain only letters with min length of 2 and max of 20")
     private String lastName;
 
+    @NotNull(message = "email cannot be null!")
+    @NotEmpty(message = "email cannot be empty!")
     @Email(message = "Email format is wrong!")
     private String email;
 
-    @Size(min = 6, max = 15)
+    @NotNull(message = "phoneNumber cannot be null!")
+    @Pattern(regexp = "^\\+\\d{6,15}$", message = "Phone Number must match the format: a '+' followed by 6 to 15 digits (no spaces, no letters, no special characters).")
     private String phoneNumber;
 
+    @NotNull(message = "address cannot be null!")
+    @NotEmpty(message = "address cannot be empty!")
     private String address;
 
-    @Size(min = 6, max = 12)
+    @NotNull(message = "drivingLicenseNumber cannot be null!")
+    @Pattern(regexp = "^\\d{6,12}$", message = "Driving license number must be 6 to 12 digit string")
     private String drivingLicenseNumber;
 }

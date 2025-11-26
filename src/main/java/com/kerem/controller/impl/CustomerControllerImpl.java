@@ -2,13 +2,14 @@ package com.kerem.controller.impl;
 
 import com.kerem.controller.ICustomerController;
 import com.kerem.dto.customerDto.CustomerDto;
+import com.kerem.dto.customerDto.CustomerDtoIU;
 import com.kerem.service.ICustomerService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/rentacar/api/customer")
@@ -17,9 +18,29 @@ public class CustomerControllerImpl implements ICustomerController {
 
     private final ICustomerService customerService;
 
-    @GetMapping(path = "/customers-list/{ssn}")
+    @GetMapping(path = "/{ssn}")
     @Override
     public ResponseEntity<CustomerDto> getCustomerBySsn(@PathVariable(name = "ssn") String ssn) {
         return ResponseEntity.ok(customerService.findCustomerBySsn(ssn));
     }
+
+    @GetMapping(path = "/getAllCustomers")
+    @Override
+    public ResponseEntity<List<CustomerDto>> getAllCustomers() {
+        return ResponseEntity.ok(customerService.getAllCustomers());
+    }
+
+    @PutMapping("/update/{ssn}")
+    @Override
+    public ResponseEntity<CustomerDto> updateCustomer(@PathVariable(name = "ssn") String ssn,
+                                                      @RequestBody @Valid CustomerDtoIU customerDtoIU) {
+        return ResponseEntity.ok(customerService.updateCustomer(ssn, customerDtoIU));
+    }
+
+    @PostMapping(path = "/save")
+    @Override
+    public ResponseEntity<CustomerDto> saveCustomer(@RequestBody @Valid CustomerDtoIU customerDtoIU) {
+        return ResponseEntity.ok(customerService.saveCustomer(customerDtoIU));
+    }
+
 }

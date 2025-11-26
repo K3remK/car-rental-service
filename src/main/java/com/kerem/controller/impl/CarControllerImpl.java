@@ -2,6 +2,7 @@ package com.kerem.controller.impl;
 
 import com.kerem.controller.ICarController;
 import com.kerem.dto.carDto.CarDto;
+import com.kerem.dto.carDto.CarDtoIU;
 import com.kerem.dto.carDto.SearchAvailableCarDto;
 import com.kerem.dto.carDto.SearchCarParamsDto;
 import com.kerem.entities.Car;
@@ -49,5 +50,17 @@ public class CarControllerImpl implements ICarController {
     @Override
     public ResponseEntity<Boolean> deleteCar(@PathVariable(name = "barcode") UUID barcode) {
         return ResponseEntity.ok(carService.deleteCar(barcode));
+    }
+
+    @PutMapping(path = "/update/{barcode}")
+    @Override
+    public ResponseEntity<CarDto> updateCar(@PathVariable(name = "barcode") UUID barcode,@RequestBody @Valid CarDtoIU carDto) {
+        return ResponseEntity.ok(carService.updateCar(barcode, carDto));
+    }
+
+    @PostMapping(path = "/save")
+    @Override
+    public ResponseEntity<CarDto> saveCar(@RequestBody @Valid CarDtoIU carDtoIU) {
+        return ResponseEntity.ok(carService.saveCar(carDtoIU));
     }
 }

@@ -1,6 +1,7 @@
 package com.kerem.dto.carDto;
 
 import com.kerem.entities.Car;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,8 +22,10 @@ public class SearchCarParamsDto {
 
     Car.CarStatus status;
 
+    @Positive(message = "Price must be positive")
     Double minPrice;
 
+    @Positive(message = "Price must be positive")
     Double maxPrice;
 
     String licensePlate;

@@ -1,5 +1,6 @@
 package com.kerem.dto.carDto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.kerem.dto.locationDto.LocationDto;
 import com.kerem.entities.Car;
 import lombok.AllArgsConstructor;
@@ -11,6 +12,7 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class CarDto {
 
     private UUID barcode;

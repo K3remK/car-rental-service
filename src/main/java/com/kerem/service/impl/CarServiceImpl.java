@@ -3,11 +3,15 @@ package com.kerem.service.impl;
 import com.kerem.dto.carDto.CarDto;
 import com.kerem.dto.carDto.CarDtoIU;
 import com.kerem.dto.carDto.SearchCarParamsDto;
+import com.kerem.dto.locationDto.LocationDto;
 import com.kerem.entities.Car;
+import com.kerem.entities.Location;
 import com.kerem.mapper.CarMapper;
+import com.kerem.mapper.LocationMapper;
 import com.kerem.repository.CarRepository;
 import com.kerem.repository.specification.CarSpecification;
 import com.kerem.service.ICarService;
+import com.kerem.service.ILocationService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
@@ -28,6 +32,8 @@ public class CarServiceImpl implements ICarService {
 
     private final CarRepository carRepository;
     private final CarMapper carMapper;
+    private final ILocationService locationService;
+    private final LocationMapper locationMapper;
 
     @Override
     public List<CarDto> findCarsWithParams(SearchCarParamsDto searchCarParamsDto) {
@@ -79,6 +85,9 @@ public class CarServiceImpl implements ICarService {
                 ->  new EntityNotFoundException("Car not found! Barcode: " + barcode));
 
         carMapper.map(carDtoIU, car);
+
+        Location loc = locationMapper.map(locationService.getLocationById(carDtoIU.getLocationCode()));
+        car.setLocation(loc);
         carRepository.save(car);
 
         return carMapper.mapGet(car);
@@ -110,7 +119,9 @@ public class CarServiceImpl implements ICarService {
     @Transactional
     @Override
     public CarDto saveCar(CarDtoIU carDtoIU) {
+        LocationDto loc = locationService.getLocationById(carDtoIU.getLocationCode());
         Car car = carMapper.map(carDtoIU);
+        car.setLocation(locationMapper.map(loc));
         return carMapper.mapGet(carRepository.save(car));
     }
 }

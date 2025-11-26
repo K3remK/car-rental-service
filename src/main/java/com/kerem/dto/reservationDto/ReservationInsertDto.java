@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,13 +24,18 @@ public class ReservationInsertDto {
     @NotNull(message = "pickUpDateAndTime cannot be null!")
     private LocalDateTime dropOffDateAndTime;
 
-    @Size(min = 11, max = 11, message = "Ssn should be 11 character")
-    private String customerSsn;
+    @NotNull(message = "Customer SSN can't be null!")
+    @NotEmpty(message = "Customer SSN can't be empty!")
+    @Size(min = 11, max = 11)
+    @Pattern(regexp = "^\\d{11}$", message = "Ssn should be 11 character containing only digits!")
+    private String ssn;
 
     @NotNull(message = "pickUpLocationCode cannot be null!")
+    @Positive(message = "pickLocationCode must be positive")
     private Long pickUpLocationCode;
 
     @NotNull(message = "dropOffLocationCode cannot be null!")
+    @Positive(message = "dropOffLocationCode must be positive")
     private Long dropOffLocationCode;
-    private List<Long> extraServiceIds;
+    private List<Long> extraServiceIds = new ArrayList<>();
 }

@@ -2,6 +2,7 @@ package com.kerem.controller.impl;
 
 import com.kerem.controller.IReservationController;
 import com.kerem.dto.carDto.RentedCarDto;
+import com.kerem.dto.reservationDto.ReservationDto;
 import com.kerem.dto.reservationDto.ReservationInsertDto;
 import com.kerem.dto.reservationDto.SaveReservationReturnDto;
 import com.kerem.service.IReservationService;
@@ -31,6 +32,7 @@ public class ReservationControllerImpl implements IReservationController {
         return ResponseEntity.ok(reservationService.getAllCurrentlyReservedCars());
     }
 
+
     @PutMapping(path = "/update/addExtraService/{reservationNumber}")
     @Override
     public ResponseEntity<Boolean> addExtraServiceToReservation(@PathVariable(name = "reservationNumber") String reservationNumber,
@@ -55,4 +57,18 @@ public class ReservationControllerImpl implements IReservationController {
     public ResponseEntity<Boolean> deleteReservation(@PathVariable(name = "reservationNumber") String reservationNumber) {
         return ResponseEntity.ok().body(reservationService.deleteReservation(reservationNumber));
     }
+
+    @GetMapping(path = "/list")
+    @Override
+    public ResponseEntity<List<ReservationDto>> getAllReservations() {
+        return ResponseEntity.ok(reservationService.getAllReservations());
+    }
+
+    @GetMapping(path = "/{reservationNumber}")
+    @Override
+    public ResponseEntity<ReservationDto> getReservationByReservationNumber(@PathVariable(name = "reservationNumber") String reservationNumber) {
+        return ResponseEntity.ok(reservationService.getReservationByReservationNumber(reservationNumber));
+    }
+
+
 }

@@ -19,6 +19,7 @@ public class Car {
     @UuidGenerator
     private UUID barcode;
 
+    @Column(nullable = false, unique = true)
     private String licensePlateNumber;
 
     private Integer numberOfSeats;
@@ -39,7 +40,7 @@ public class Car {
     @Enumerated(EnumType.STRING)
     private Category categoryType;
 
-    @Column(length = 50, nullable = false)
+    @Column(length = 200, nullable = false)
     private String categoryDescription;
 
     // ManyToOne relations with the Locations table

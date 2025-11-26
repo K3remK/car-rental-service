@@ -1,7 +1,9 @@
 package com.kerem.service.impl;
 
 import com.kerem.dto.carDto.CarDto;
+import com.kerem.dto.carDto.CarDtoIU;
 import com.kerem.dto.carDto.RentedCarDto;
+import com.kerem.dto.extraServiceDto.ExtraServiceDto;
 import com.kerem.dto.reservationDto.ReservationDto;
 import com.kerem.dto.reservationDto.ReservationInsertDto;
 import com.kerem.dto.reservationDto.SaveReservationReturnDto;
@@ -52,7 +54,7 @@ public class ReservationServiceImpl implements IReservationService {
             throw new NotAcceptableStatusException("Car has another reservation for the specified dates!");
         }
 
-        Customer customer = customerMapper.map(customerService.findCustomerBySsn(reservationInsertDto.getCustomerSsn()));
+        Customer customer = customerMapper.map(customerService.findCustomerBySsn(reservationInsertDto.getSsn()));
         Location pickUpLoc = locationMapper.map(locationService.getLocationById(reservationInsertDto.getPickUpLocationCode()));
         Location dropOffLoc = locationMapper.map(locationService.getLocationById(reservationInsertDto.getDropOffLocationCode()));
 
@@ -151,7 +153,11 @@ public class ReservationServiceImpl implements IReservationService {
 
 
         reservationRepository.save(reservation);
-        carService.updateCar(dbCar.getBarcode(), carMapper.mapIU(dbCar));
+
+        CarDtoIU carDtoIU = carMapper.mapIU(dbCar);
+        carDtoIU.setLocationCode(dbCar.getLocation().getCode());
+
+        carService.updateCar(dbCar.getBarcode(), carDtoIU);
 
         return true;
     }
@@ -188,6 +194,10 @@ public class ReservationServiceImpl implements IReservationService {
             throw new EntityNotFoundException("Reservations not found!");
         }
 
+        for (Reservation reservation : reservations) {
+            reservation.getCustomer().setReservations(null);
+        }
+
         return reservations.stream()
                 .map(reservationMapper::map)
                 .collect(Collectors.toList());
@@ -195,8 +205,12 @@ public class ReservationServiceImpl implements IReservationService {
 
     @Override
     public ReservationDto getReservationByReservationNumber(String reservationNumber) {
-        return reservationMapper.map(reservationRepository.findById(reservationNumber).orElseThrow(() ->
-                new EntityNotFoundException("Reservation not found! ReservationNumber: " + reservationNumber)));
+
+        Reservation dbRes = reservationRepository.findById(reservationNumber).orElseThrow(() -> new EntityNotFoundException("Reservation not found! ReservationNumber: " + reservationNumber));
+
+        dbRes.getCustomer().setReservations(null);
+
+        return reservationMapper.map(dbRes);
     }
 
     private static Long calculateDaysInBetween(LocalDateTime startDate, LocalDateTime endDate) {
@@ -219,7 +233,7 @@ public class ReservationServiceImpl implements IReservationService {
                 calculateDaysInBetween(reservationDto.getPickUpDateAndTime(),
                         reservationDto.getDropOffDateAndTime());
 
-        for (ExtraService extraService : reservationDto.getExtras()) {
+        for (ExtraServiceDto extraService : reservationDto.getExtras()) {
             totalAmount += extraService.getTotalPrice();
         }
         return totalAmount;

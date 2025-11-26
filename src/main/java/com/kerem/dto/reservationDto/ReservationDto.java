@@ -1,6 +1,9 @@
 package com.kerem.dto.reservationDto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.kerem.dto.carDto.CarDto;
+import com.kerem.dto.customerDto.CustomerDto;
+import com.kerem.dto.extraServiceDto.ExtraServiceDto;
 import com.kerem.entities.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,6 +15,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ReservationDto {
 
     private String reservationNumber;
@@ -30,11 +34,9 @@ public class ReservationDto {
 
     private Double totalAmount;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Customer customer;
+    private CustomerDto customer;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Car car;
+    private CarDto car;
 
-    private List<ExtraService> extras;
+    private List<ExtraServiceDto> extras;
 }

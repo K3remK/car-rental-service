@@ -1,5 +1,6 @@
 package com.kerem.dto.extraServiceDto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.kerem.entities.ExtraService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,6 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ExtraServiceDto {
 
     private Long id;

@@ -13,8 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -33,9 +33,18 @@ public class CustomerServiceImpl implements ICustomerService {
             throw new EntityNotFoundException("Couldn't find any customer");
         }
 
-        return customers.stream()
-                        .map(customerMapper::map)
-                        .collect(Collectors.toList());
+        List<CustomerDto> res = new ArrayList<>();
+
+        for (Customer customer : customers) {
+            CustomerDto customerDto = customerMapper.map(customer);
+            for (ReservationDto resDto : customerDto.getReservations()) {
+                resDto.setCustomer(null);
+                resDto.setTotalAmount(ReservationServiceImpl.calculateTotalAmount(resDto));
+            }
+            res.add(customerDto);
+        }
+
+        return res;
     }
 
     @Override
@@ -63,7 +72,10 @@ public class CustomerServiceImpl implements ICustomerService {
         // update the fields of the dbCustomer
         customerMapper.map(customerDtoIU, dbCustomer);
 
-        return customerMapper.map(customerRepository.save(dbCustomer));
+        CustomerDto customerDto = customerMapper.map(customerRepository.save(dbCustomer));
+        customerDto.setReservations(null);
+
+        return customerDto;
     }
 
     @Transactional
@@ -74,6 +86,9 @@ public class CustomerServiceImpl implements ICustomerService {
             throw new EntityExistsException("Customer already exists! You can update instead of creating new Customer! SSN:" + customerDtoIU.getSsn());
         }
 
-        return customerMapper.map(customerRepository.save(customerMapper.map(customerDtoIU)));
+        CustomerDto customerDto = customerMapper.map(customerRepository.save(customerMapper.map(customerDtoIU)));
+        customerDto.setReservations(null);
+
+        return customerDto;
     }
 }

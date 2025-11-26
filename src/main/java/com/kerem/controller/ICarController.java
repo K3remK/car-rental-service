@@ -1,6 +1,7 @@
 package com.kerem.controller;
 
 import com.kerem.dto.carDto.CarDto;
+import com.kerem.dto.carDto.CarDtoIU;
 import com.kerem.dto.carDto.SearchAvailableCarDto;
 import com.kerem.dto.carDto.SearchCarParamsDto;
 import org.springframework.http.ResponseEntity;
@@ -14,5 +15,8 @@ public interface ICarController {
     ResponseEntity<List<CarDto>> searchAvailableCars(SearchAvailableCarDto searchAvailableCarDto);
 
     ResponseEntity<Boolean> deleteCar(UUID barcode);
+
+    ResponseEntity<CarDto> updateCar(UUID barcode, CarDtoIU carDto);
+    ResponseEntity<CarDto>  saveCar(CarDtoIU carDtoIU);
 
 }

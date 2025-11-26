@@ -2,10 +2,12 @@ package com.kerem.exception;
 
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -49,6 +51,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(createApiError(errors));
     }
 
+    @ExceptionHandler(value = DataIntegrityViolationException.class)
+    public ResponseEntity<APIError<String>> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        return ResponseEntity.badRequest().body(createApiError(ex.getMostSpecificCause().getMessage()));
+    }
+
+    @ExceptionHandler(value = HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<APIError<String>> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex) {
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(createApiError(ex.getMessage()));
+    }
+
     @ExceptionHandler(value = EntityExistsException.class)
     public ResponseEntity<APIError<String>> handleEntityExistsException(EntityExistsException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(createApiError(ex.getMessage()));
@@ -64,11 +76,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(createApiError(err.getReason()));
     }
 
+    @ExceptionHandler(value = IllegalArgumentException.class)
+    public ResponseEntity<APIError<String>> handleIllegalArgumentException(IllegalArgumentException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createApiError(ex.getMessage()));
+    }
+
     @ExceptionHandler(value = HttpMessageNotReadableException.class)
     public ResponseEntity<APIError<String>> handleHttpMessageNotReadable(HttpMessageNotReadableException err) {
         Throwable cause = err.getMostSpecificCause();
         if (cause instanceof DateTimeParseException) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createApiError(err.getMostSpecificCause().getMessage() + ". Use format: 'yyyy-MM-dd:HH:mm:ss'"));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createApiError(err.getMostSpecificCause().getMessage() + ". Use format: 'yyyy-MM-ddTHH:mm:ss'"));
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createApiError(err.getMessage()));
     }
