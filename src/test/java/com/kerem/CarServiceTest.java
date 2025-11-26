@@ -57,7 +57,7 @@ public class CarServiceTest {
         carDtoIU.setCategoryDescription("Compact Car");
         carDtoIU.setStatus(Car.CarStatus.IN_SERVICE);
         carDtoIU.setNumberOfSeats(5);
-        carDtoIU.setLocation(new LocationDto(testLocation.getCode(), testLocation.getLocationName()));
+        carDtoIU.setLocationCode(testLocation.getCode());
 
         // Act
         CarDto savedCar = carService.saveCar(carDtoIU);
@@ -114,7 +114,7 @@ public class CarServiceTest {
         updateDto.setCategoryType(Car.Category.LUXURY);
         updateDto.setCategoryDescription("Luxury");
         updateDto.setStatus(Car.CarStatus.IN_SERVICE);
-        updateDto.setLocation(new LocationDto(testLocation.getCode(), testLocation.getLocationName()));
+        updateDto.setLocationCode(testLocation.getCode());
 
         // Act
         CarDto updated = carService.updateCar(saved.getBarcode(), updateDto);

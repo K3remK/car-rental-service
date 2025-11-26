@@ -82,7 +82,7 @@ public class ReservationServiceTest {
         // Arrange
         ReservationInsertDto insertDto = new ReservationInsertDto();
         insertDto.setCarBarcodeNumber(savedCar.getBarcode());
-        insertDto.setCustomerSsn(savedCustomer.getSsn());
+        insertDto.setSsn(savedCustomer.getSsn());
         insertDto.setPickUpLocationCode(pickUpLoc.getCode());
         insertDto.setDropOffLocationCode(dropOffLoc.getCode());
 
@@ -122,7 +122,7 @@ public class ReservationServiceTest {
         insertDto.setCarBarcodeNumber(savedCar.getBarcode());
         insertDto.setPickUpDateAndTime(LocalDateTime.now().plusDays(1));
         insertDto.setDropOffDateAndTime(LocalDateTime.now().plusDays(2));
-        insertDto.setCustomerSsn(savedCustomer.getSsn());
+        insertDto.setSsn(savedCustomer.getSsn());
         insertDto.setPickUpLocationCode(pickUpLoc.getCode());
         insertDto.setDropOffLocationCode(dropOffLoc.getCode());
         insertDto.setExtraServiceIds(new ArrayList<>());
