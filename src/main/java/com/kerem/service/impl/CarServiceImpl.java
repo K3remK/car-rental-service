@@ -124,4 +124,9 @@ public class CarServiceImpl implements ICarService {
         car.setLocation(locationMapper.map(loc));
         return carMapper.mapGet(carRepository.save(car));
     }
+
+    @Override
+    public Car getReferenceById(UUID barcode) {
+        return carRepository.getReferenceById(barcode);
+    }
 }

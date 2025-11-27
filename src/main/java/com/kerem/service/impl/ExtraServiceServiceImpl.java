@@ -58,4 +58,9 @@ public class ExtraServiceServiceImpl implements IExtraServiceService {
     public ExtraServiceDto save(ExtraServiceDtoIU extraServiceDtoIU) {
         return extraServiceMapper.map(extraServiceRepository.save(extraServiceMapper.map(extraServiceDtoIU)));
     }
+
+    @Override
+    public ExtraService getReferenceById(Long id) {
+        return extraServiceRepository.getReferenceById(id);
+    }
 }

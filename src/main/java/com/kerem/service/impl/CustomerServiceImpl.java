@@ -2,7 +2,7 @@ package com.kerem.service.impl;
 
 import com.kerem.dto.customerDto.CustomerDto;
 import com.kerem.dto.customerDto.CustomerDtoIU;
-import com.kerem.dto.reservationDto.ReservationDto;
+import com.kerem.dto.reservationDto.ReservationForCustomerDto;
 import com.kerem.entities.Customer;
 import com.kerem.mapper.CustomerMapper;
 import com.kerem.repository.CustomerRepository;
@@ -37,8 +37,7 @@ public class CustomerServiceImpl implements ICustomerService {
 
         for (Customer customer : customers) {
             CustomerDto customerDto = customerMapper.map(customer);
-            for (ReservationDto resDto : customerDto.getReservations()) {
-                resDto.setCustomer(null);
+            for (ReservationForCustomerDto resDto : customerDto.getReservations()) {
                 resDto.setTotalAmount(ReservationServiceImpl.calculateTotalAmount(resDto));
             }
             res.add(customerDto);
@@ -54,14 +53,12 @@ public class CustomerServiceImpl implements ICustomerService {
 
         CustomerDto customerDto = customerMapper.map(dbCust);
 
-        for (ReservationDto reservationDto : customerDto.getReservations()) {
-            reservationDto.setCustomer(null);
+        for (ReservationForCustomerDto reservationDto : customerDto.getReservations()) {
             reservationDto.setTotalAmount(ReservationServiceImpl.calculateTotalAmount(reservationDto));
         }
 
         return customerDto;
     }
-
     @Transactional
     @Override
     public CustomerDto updateCustomer(String ssn, CustomerDtoIU customerDtoIU) {
@@ -72,10 +69,7 @@ public class CustomerServiceImpl implements ICustomerService {
         // update the fields of the dbCustomer
         customerMapper.map(customerDtoIU, dbCustomer);
 
-        CustomerDto customerDto = customerMapper.map(customerRepository.save(dbCustomer));
-        customerDto.setReservations(null);
-
-        return customerDto;
+        return customerMapper.map(customerRepository.save(dbCustomer));
     }
 
     @Transactional
@@ -86,9 +80,11 @@ public class CustomerServiceImpl implements ICustomerService {
             throw new EntityExistsException("Customer already exists! You can update instead of creating new Customer! SSN:" + customerDtoIU.getSsn());
         }
 
-        CustomerDto customerDto = customerMapper.map(customerRepository.save(customerMapper.map(customerDtoIU)));
-        customerDto.setReservations(null);
+        return customerMapper.map(customerRepository.save(customerMapper.map(customerDtoIU)));
+    }
 
-        return customerDto;
+    @Override
+    public Customer getReferenceBySsn(String ssn) {
+        return customerRepository.getReferenceById(ssn);
     }
 }

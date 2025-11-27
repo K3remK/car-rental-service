@@ -1,10 +1,10 @@
 package com.kerem.service.impl;
 
-import com.kerem.dto.carDto.CarDto;
 import com.kerem.dto.carDto.CarDtoIU;
 import com.kerem.dto.carDto.RentedCarDto;
 import com.kerem.dto.extraServiceDto.ExtraServiceDto;
 import com.kerem.dto.reservationDto.ReservationDto;
+import com.kerem.dto.reservationDto.ReservationForCustomerDto;
 import com.kerem.dto.reservationDto.ReservationInsertDto;
 import com.kerem.dto.reservationDto.SaveReservationReturnDto;
 import com.kerem.entities.*;
@@ -21,7 +21,6 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -34,15 +33,12 @@ public class ReservationServiceImpl implements IReservationService {
     private final IExtraServiceService extraServiceService;
     private final ILocationService locationService;
     private final CarMapper carMapper;
-    private final LocationMapper locationMapper;
-    private final ExtraServiceMapper extraServiceMapper;
     private final ReservationMapper reservationMapper;
-    private final CustomerMapper customerMapper;
 
     @Transactional
     @Override
     public SaveReservationReturnDto saveReservation(ReservationInsertDto reservationInsertDto) {
-        CarDto reservationCar = carService.findCarById(reservationInsertDto.getCarBarcodeNumber());
+        Car reservationCar = carService.getReferenceById(reservationInsertDto.getCarBarcodeNumber());
 
         // CHECK IF THE CAR IS OUT_OF_SERVICE OR HAS ANOTHER RESERVATION FOR THE SPECIFIED DATES
         if (reservationCar.getStatus() == Car.CarStatus.OUT_OF_SERVICE) {
@@ -54,18 +50,22 @@ public class ReservationServiceImpl implements IReservationService {
             throw new NotAcceptableStatusException("Car has another reservation for the specified dates!");
         }
 
-        Customer customer = customerMapper.map(customerService.findCustomerBySsn(reservationInsertDto.getSsn()));
-        Location pickUpLoc = locationMapper.map(locationService.getLocationById(reservationInsertDto.getPickUpLocationCode()));
-        Location dropOffLoc = locationMapper.map(locationService.getLocationById(reservationInsertDto.getDropOffLocationCode()));
+        if (calculateDaysInBetween(reservationInsertDto.getPickUpDateAndTime(), reservationInsertDto.getDropOffDateAndTime()) < 0) {
+            throw new NotAcceptableStatusException("Pick up date is after drop date!");
+        }
+
+        Customer customer = customerService.getReferenceBySsn(reservationInsertDto.getSsn());
+        Location pickUpLoc = locationService.getReferenceById(reservationInsertDto.getPickUpLocationCode());
+        Location dropOffLoc = locationService.getReferenceById(reservationInsertDto.getDropOffLocationCode());
 
         Reservation reservation = reservationMapper.map(reservationInsertDto);
 
         for (long id :  reservationInsertDto.getExtraServiceIds()) {
-            ExtraService service = extraServiceMapper.map(extraServiceService.findById(id));
+            ExtraService service = extraServiceService.getReferenceById(id);
             reservation.getExtras().add(service);
         }
 
-        reservation.setCar(carMapper.map(reservationCar));
+        reservation.setCar(reservationCar);
         reservation.setStatus(Reservation.Status.ACTIVE);
         reservation.setCreationDate(LocalDateTime.now());
         reservation.setCustomer(customer);
@@ -118,7 +118,7 @@ public class ReservationServiceImpl implements IReservationService {
     @Override
     public Boolean addExtraServiceToReservation(String reservationNumber, Long extraServiceId) {
         Reservation reservation = reservationRepository.findById(reservationNumber).orElseThrow(() -> new EntityNotFoundException("Reservation not found! ReservationNumber: " + reservationNumber));
-        ExtraService extraService = extraServiceMapper.map(extraServiceService.findById(extraServiceId));
+        ExtraService extraService = extraServiceService.getReferenceById(extraServiceId);
 
         if (reservation.getExtras().contains(extraService)) {
             return false;
@@ -194,22 +194,20 @@ public class ReservationServiceImpl implements IReservationService {
             throw new EntityNotFoundException("Reservations not found!");
         }
 
+        List<ReservationDto> resDtos = new ArrayList<>();
+
         for (Reservation reservation : reservations) {
-            reservation.getCustomer().setReservations(null);
+            ReservationDto reservationDto = reservationMapper.map(reservation);
+            reservationDto.setTotalAmount(calculateTotalAmount(reservationDto));
+            resDtos.add(reservationDto);
         }
 
-        return reservations.stream()
-                .map(reservationMapper::map)
-                .collect(Collectors.toList());
+        return resDtos;
     }
 
     @Override
     public ReservationDto getReservationByReservationNumber(String reservationNumber) {
-
         Reservation dbRes = reservationRepository.findById(reservationNumber).orElseThrow(() -> new EntityNotFoundException("Reservation not found! ReservationNumber: " + reservationNumber));
-
-        dbRes.getCustomer().setReservations(null);
-
         return reservationMapper.map(dbRes);
     }
 
@@ -229,6 +227,17 @@ public class ReservationServiceImpl implements IReservationService {
     }
 
     public static Double calculateTotalAmount(ReservationDto reservationDto) {
+        Double totalAmount = reservationDto.getCar().getDailyPrice() *
+                calculateDaysInBetween(reservationDto.getPickUpDateAndTime(),
+                        reservationDto.getDropOffDateAndTime());
+
+        for (ExtraServiceDto extraService : reservationDto.getExtras()) {
+            totalAmount += extraService.getTotalPrice();
+        }
+        return totalAmount;
+    }
+
+    public static Double calculateTotalAmount(ReservationForCustomerDto reservationDto) {
         Double totalAmount = reservationDto.getCar().getDailyPrice() *
                 calculateDaysInBetween(reservationDto.getPickUpDateAndTime(),
                         reservationDto.getDropOffDateAndTime());

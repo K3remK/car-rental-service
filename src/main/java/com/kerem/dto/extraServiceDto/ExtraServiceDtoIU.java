@@ -3,11 +3,10 @@ package com.kerem.dto.extraServiceDto;
 import com.kerem.entities.ExtraService;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class ExtraServiceDtoIU {

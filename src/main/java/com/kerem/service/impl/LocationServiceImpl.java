@@ -59,4 +59,9 @@ public class LocationServiceImpl implements ILocationService {
 
         return locationMapper.map(locationRepository.save(dbLocation));
     }
+
+    @Override
+    public Location getReferenceById(Long code) {
+        return locationRepository.getReferenceById(code);
+    }
 }

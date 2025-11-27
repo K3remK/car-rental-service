@@ -1,13 +1,15 @@
 package com.kerem.dto.reservationDto;
 
-import com.kerem.entities.Location;
+import com.kerem.dto.locationDto.LocationDto;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class SaveReservationReturnDto {
@@ -18,9 +20,9 @@ public class SaveReservationReturnDto {
 
     private LocalDateTime dropOffDateAndTime;
 
-    private Location pickUpLocation;
+    private LocationDto pickUpLocation;
 
-    private Location dropOffLocation;
+    private LocationDto dropOffLocation;
 
     private Double totalAmount;
 

@@ -1,8 +1,6 @@
 package com.kerem.dto.reservationDto;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.kerem.dto.carDto.CarDto;
-import com.kerem.dto.customerDto.CustomerForReservationDto;
 import com.kerem.dto.extraServiceDto.ExtraServiceDto;
 import com.kerem.entities.Location;
 import com.kerem.entities.Reservation;
@@ -18,8 +16,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class ReservationDto {
+public class ReservationForCustomerDto {
 
     private String reservationNumber;
 
@@ -37,9 +34,8 @@ public class ReservationDto {
 
     private Double totalAmount;
 
-    private CustomerForReservationDto customer;
-
     private CarDto car;
 
     private List<ExtraServiceDto> extras;
+
 }

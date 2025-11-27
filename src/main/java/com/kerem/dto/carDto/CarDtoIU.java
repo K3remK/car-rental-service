@@ -2,11 +2,10 @@ package com.kerem.dto.carDto;
 
 import com.kerem.entities.Car;
 import jakarta.validation.constraints.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class CarDtoIU {
