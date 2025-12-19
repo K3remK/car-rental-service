@@ -56,7 +56,7 @@ public class LocationServiceTest {
         locationRepository.save(loc2);
 
         // Act
-        List<LocationDto> locations = locationService.getLocations();
+        List<LocationDto> locations = locationService.getAllLocations();
 
         // Assert
         Assertions.assertTrue(locations.size() >= 2);

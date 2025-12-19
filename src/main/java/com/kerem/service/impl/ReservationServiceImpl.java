@@ -40,17 +40,19 @@ public class ReservationServiceImpl implements IReservationService {
     public SaveReservationReturnDto saveReservation(ReservationInsertDto reservationInsertDto) {
         Car reservationCar = carService.getReferenceById(reservationInsertDto.getCarBarcodeNumber());
 
-        // CHECK IF THE CAR IS OUT_OF_SERVICE OR HAS ANOTHER RESERVATION FOR THE SPECIFIED DATES
+        // CHECK IF THE CAR IS OUT_OF_SERVICE OR HAS ANOTHER RESERVATION FOR THE
+        // SPECIFIED DATES
         if (reservationCar.getStatus() == Car.CarStatus.OUT_OF_SERVICE) {
             throw new NotAcceptableStatusException("Car is out of service!");
         }
 
-        if (!carService.isAvailable(reservationCar.getBarcode()
-                , reservationInsertDto.getPickUpDateAndTime(), reservationInsertDto.getDropOffDateAndTime())) {
+        if (!carService.isAvailable(reservationCar.getBarcode(), reservationInsertDto.getPickUpDateAndTime(),
+                reservationInsertDto.getDropOffDateAndTime())) {
             throw new NotAcceptableStatusException("Car has another reservation for the specified dates!");
         }
 
-        if (calculateDaysInBetween(reservationInsertDto.getPickUpDateAndTime(), reservationInsertDto.getDropOffDateAndTime()) < 0) {
+        if (calculateDaysInBetween(reservationInsertDto.getPickUpDateAndTime(),
+                reservationInsertDto.getDropOffDateAndTime()) < 0) {
             throw new NotAcceptableStatusException("Pick up date is after drop date!");
         }
 
@@ -60,7 +62,7 @@ public class ReservationServiceImpl implements IReservationService {
 
         Reservation reservation = reservationMapper.map(reservationInsertDto);
 
-        for (long id :  reservationInsertDto.getExtraServiceIds()) {
+        for (long id : reservationInsertDto.getExtraServiceIds()) {
             ExtraService service = extraServiceService.getReferenceById(id);
             reservation.getExtras().add(service);
         }
@@ -78,7 +80,6 @@ public class ReservationServiceImpl implements IReservationService {
 
         SaveReservationReturnDto reservationDto = reservationMapper.mapToSaveReservationDto(reservation);
         reservationDto.setTotalAmount(totalAmount);
-        reservationDto.setCustomerSsn(customer.getSsn());
         reservationDto.setCustomerName(customer.getFirstName() + " " + customer.getLastName());
 
         return reservationDto;
@@ -89,21 +90,20 @@ public class ReservationServiceImpl implements IReservationService {
         LocalDateTime today = LocalDateTime.now();
         List<Reservation> activeReservationsToday = reservationRepository.getActiveReservationsOn(today);
 
-        if  (activeReservationsToday.isEmpty()) {
-            throw new EntityNotFoundException("Could not find any currently active reservations! Hence, There is no currently reserved car!");
+        if (activeReservationsToday.isEmpty()) {
+            throw new EntityNotFoundException(
+                    "Could not find any currently active reservations! Hence, There is no currently reserved car!");
         }
 
         List<RentedCarDto> res = new ArrayList<>();
 
         for (Reservation reservation : activeReservationsToday) {
-            Car car = reservation.getCar();
             RentedCarDto resDto = new RentedCarDto();
 
             // map the car and reservations related fields to RentedCarGetRequestDto
-            carMapper.map(car, resDto);
             reservationMapper.mapReservationToRentedCarDto(reservation, resDto);
-            resDto.setCustomerName(reservation.getCustomer().getFirstName() + " " + reservation.getCustomer().getLastName());
-
+            resDto.setCustomerName(
+                    reservation.getCustomer().getFirstName() + " " + reservation.getCustomer().getLastName());
 
             // calculate the day count for the reservation
             resDto.setReservationDayCount(calculateDaysInBetween(reservation.getPickUpDateAndTime(),
@@ -117,7 +117,8 @@ public class ReservationServiceImpl implements IReservationService {
     @Transactional
     @Override
     public Boolean addExtraServiceToReservation(String reservationNumber, Long extraServiceId) {
-        Reservation reservation = reservationRepository.findById(reservationNumber).orElseThrow(() -> new EntityNotFoundException("Reservation not found! ReservationNumber: " + reservationNumber));
+        Reservation reservation = reservationRepository.findById(reservationNumber).orElseThrow(
+                () -> new EntityNotFoundException("Reservation not found! ReservationNumber: " + reservationNumber));
         ExtraService extraService = extraServiceService.getReferenceById(extraServiceId);
 
         if (reservation.getExtras().contains(extraService)) {
@@ -134,8 +135,8 @@ public class ReservationServiceImpl implements IReservationService {
     @Override
     public Boolean returnCar(String reservationNumber) {
 
-        Reservation reservation = reservationRepository.findById(reservationNumber).orElseThrow(()
-                -> new  EntityNotFoundException("Reservation not found! ReservationNumber: " + reservationNumber));
+        Reservation reservation = reservationRepository.findById(reservationNumber).orElseThrow(
+                () -> new EntityNotFoundException("Reservation not found! ReservationNumber: " + reservationNumber));
 
         Car dbCar = reservation.getCar();
 
@@ -146,16 +147,13 @@ public class ReservationServiceImpl implements IReservationService {
         reservation.setStatus(Reservation.Status.COMPLETED);
         reservation.setDropOffDateAndTime(LocalDateTime.now());
 
-        if (dbCar.getLocation() != reservation.getDropOffLocation())
-        {
+        if (dbCar.getLocation() != reservation.getDropOffLocation()) {
             dbCar.setLocation(reservation.getDropOffLocation());
         }
-
 
         reservationRepository.save(reservation);
 
         CarDtoIU carDtoIU = carMapper.mapIU(dbCar);
-        carDtoIU.setLocationCode(dbCar.getLocation().getCode());
 
         carService.updateCar(dbCar.getBarcode(), carDtoIU);
 
@@ -165,8 +163,8 @@ public class ReservationServiceImpl implements IReservationService {
     @Transactional
     @Override
     public Boolean cancelReservation(String reservationNumber) {
-        Reservation foundReservation = reservationRepository.findById(reservationNumber).orElseThrow(()
-                -> new EntityNotFoundException("Reservation not found! ReservationNumber: " + reservationNumber));
+        Reservation foundReservation = reservationRepository.findById(reservationNumber).orElseThrow(
+                () -> new EntityNotFoundException("Reservation not found! ReservationNumber: " + reservationNumber));
 
         foundReservation.setStatus(Reservation.Status.CANCELLED);
         reservationRepository.save(foundReservation);
@@ -177,8 +175,8 @@ public class ReservationServiceImpl implements IReservationService {
     @Transactional
     @Override
     public Boolean deleteReservation(String reservationNumber) {
-        Reservation reservation = reservationRepository.findById(reservationNumber).orElseThrow(()
-                -> new EntityNotFoundException("Reservation not found! ReservationNumber: " + reservationNumber));
+        Reservation reservation = reservationRepository.findById(reservationNumber).orElseThrow(
+                () -> new EntityNotFoundException("Reservation not found! ReservationNumber: " + reservationNumber));
 
         reservationRepository.delete(reservation);
 
@@ -207,7 +205,8 @@ public class ReservationServiceImpl implements IReservationService {
 
     @Override
     public ReservationDto getReservationByReservationNumber(String reservationNumber) {
-        Reservation dbRes = reservationRepository.findById(reservationNumber).orElseThrow(() -> new EntityNotFoundException("Reservation not found! ReservationNumber: " + reservationNumber));
+        Reservation dbRes = reservationRepository.findById(reservationNumber).orElseThrow(
+                () -> new EntityNotFoundException("Reservation not found! ReservationNumber: " + reservationNumber));
         return reservationMapper.map(dbRes);
     }
 

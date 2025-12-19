@@ -12,11 +12,17 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/rentacar/api/customer")
+@RequestMapping("/rentacar/api/customers")
 @RequiredArgsConstructor
 public class CustomerControllerImpl implements ICustomerController {
 
     private final ICustomerService customerService;
+
+    @GetMapping
+    @Override
+    public ResponseEntity<List<CustomerDto>> getAllCustomers() {
+        return ResponseEntity.ok(customerService.getAllCustomers());
+    }
 
     @GetMapping(path = "/{ssn}")
     @Override
@@ -24,20 +30,14 @@ public class CustomerControllerImpl implements ICustomerController {
         return ResponseEntity.ok(customerService.findCustomerBySsn(ssn));
     }
 
-    @GetMapping(path = "/getAllCustomers")
-    @Override
-    public ResponseEntity<List<CustomerDto>> getAllCustomers() {
-        return ResponseEntity.ok(customerService.getAllCustomers());
-    }
-
-    @PutMapping("/update/{ssn}")
+    @PutMapping("/{ssn}")
     @Override
     public ResponseEntity<CustomerDto> updateCustomer(@PathVariable(name = "ssn") String ssn,
-                                                      @RequestBody @Valid CustomerDtoIU customerDtoIU) {
+            @RequestBody @Valid CustomerDtoIU customerDtoIU) {
         return ResponseEntity.ok(customerService.updateCustomer(ssn, customerDtoIU));
     }
 
-    @PostMapping(path = "/save")
+    @PostMapping
     @Override
     public ResponseEntity<CustomerDto> saveCustomer(@RequestBody @Valid CustomerDtoIU customerDtoIU) {
         return ResponseEntity.ok(customerService.saveCustomer(customerDtoIU));

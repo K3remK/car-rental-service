@@ -23,7 +23,7 @@ public class ExtraServiceServiceImpl implements IExtraServiceService {
     private final ExtraServiceMapper extraServiceMapper;
 
     @Override
-    public List<ExtraServiceDto> findAll() {
+    public List<ExtraServiceDto> getAllExtraServices() {
 
         List<ExtraService> extraServices = extraServiceRepository.findAll();
 

@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface ILocationService {
 
-    List<LocationDto> getLocations();
+    List<LocationDto> getAllLocations();
     LocationDto getLocationById(Long id);
     LocationDto saveLocation(LocationDtoIU locationDtoIU);
     LocationDto updateLocation(Long id, LocationDtoIU locationDtoIU);

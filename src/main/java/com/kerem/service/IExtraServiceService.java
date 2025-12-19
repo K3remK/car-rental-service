@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface IExtraServiceService {
     // Get
-    List<ExtraServiceDto> findAll();
+    List<ExtraServiceDto> getAllExtraServices();
     ExtraServiceDto findById(Long id);
 
     // Update, Save

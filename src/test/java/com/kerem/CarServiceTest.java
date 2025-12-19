@@ -2,8 +2,7 @@ package com.kerem;
 
 import com.kerem.dto.carDto.CarDto;
 import com.kerem.dto.carDto.CarDtoIU;
-import com.kerem.dto.carDto.SearchCarParamsDto;
-import com.kerem.dto.locationDto.LocationDto;
+import com.kerem.dto.carDto.SearchCarWithParamsDto;
 import com.kerem.entities.Car;
 import com.kerem.entities.Location;
 import com.kerem.repository.CarRepository;
@@ -164,7 +163,7 @@ public class CarServiceTest {
         car.setLocation(testLocation);
         carRepository.save(car);
 
-        SearchCarParamsDto params = new SearchCarParamsDto();
+        SearchCarWithParamsDto params = new SearchCarWithParamsDto();
         params.setBrand("Mercedes");
         params.setMinPrice(200.0);
         params.setMaxPrice(400.0);

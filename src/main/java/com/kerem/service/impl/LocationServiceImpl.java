@@ -23,7 +23,7 @@ public class LocationServiceImpl implements ILocationService {
     private final LocationMapper locationMapper;
 
     @Override
-    public List<LocationDto> getLocations() {
+    public List<LocationDto> getAllLocations() {
 
         List<Location> locations = locationRepository.findAll();
 

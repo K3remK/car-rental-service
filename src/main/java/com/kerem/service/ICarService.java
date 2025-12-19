@@ -2,7 +2,7 @@ package com.kerem.service;
 
 import com.kerem.dto.carDto.CarDto;
 import com.kerem.dto.carDto.CarDtoIU;
-import com.kerem.dto.carDto.SearchCarParamsDto;
+import com.kerem.dto.carDto.SearchCarWithParamsDto;
 import com.kerem.entities.Car;
 
 import java.time.LocalDateTime;
@@ -11,7 +11,7 @@ import java.util.UUID;
 
 public interface ICarService {
 
-    List<CarDto> findCarsWithParams(SearchCarParamsDto searchCarParamsDto);
+    List<CarDto> findCarsWithParams(SearchCarWithParamsDto searchCarWithParamsDto);
     Boolean isAvailable(UUID barcode, LocalDateTime pickUpDateAndTime, LocalDateTime dropOffDateAndTime);
     CarDto findCarById(UUID barcode);
     CarDto updateCar(UUID barcode, CarDtoIU updatedCar);
