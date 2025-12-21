@@ -39,8 +39,10 @@ public class SearchCarWithParamsDto {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     LocalDateTime dropOffDate;
 
+    @Positive(message = "Number of seats must be positive")
     Integer numberOfSeats;
 
+    @Positive(message = "Pick up location code must be positive")
     Long pickUpLocationCode;
 
 }

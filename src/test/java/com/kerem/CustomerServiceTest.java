@@ -2,6 +2,7 @@ package com.kerem;
 
 import com.kerem.dto.customerDto.CustomerDto;
 import com.kerem.dto.customerDto.CustomerDtoIU;
+import com.kerem.dto.customerDto.CustomerForReservationDto;
 import com.kerem.entities.Customer;
 import com.kerem.repository.CustomerRepository;
 import com.kerem.service.ICustomerService;
@@ -102,7 +103,7 @@ public class CustomerServiceTest {
         updateDto.setDrivingLicenseNumber("DL11111");
 
         // Act
-        CustomerDto updated = customerService.updateCustomer("33333333333", updateDto);
+        CustomerForReservationDto updated = customerService.updateCustomer("33333333333", updateDto);
 
         // Assert
         Assertions.assertEquals("NewName", updated.getFirstName());

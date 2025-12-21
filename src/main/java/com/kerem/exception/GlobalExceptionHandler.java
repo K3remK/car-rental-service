@@ -25,28 +25,27 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler {
 
     /*
-* Code,Constant,Meaning,When to use
-    200,HttpStatus.OK,OK,Standard successful GET/PUT.
-    201,HttpStatus.CREATED,Created,Successful POST (creation).
-    204,HttpStatus.NO_CONTENT,No Content,Successful DELETE (nothing to return).
-    400,HttpStatus.BAD_REQUEST,Bad Request,Validation failed or invalid input.
-    401,HttpStatus.UNAUTHORIZED,Unauthorized,User is not logged in.
-    403,HttpStatus.FORBIDDEN,Forbidden,User is logged in but lacks permission.
-    404,HttpStatus.NOT_FOUND,Not Found,Resource doesn't exist.
-    500,HttpStatus.INTERNAL_SERVER_ERROR,Server Error,Uncaught exception/crash.
-*/
-
+     * Code,Constant,Meaning,When to use
+     * 200,HttpStatus.OK,OK,Standard successful GET/PUT.
+     * 201,HttpStatus.CREATED,Created,Successful POST (creation).
+     * 204,HttpStatus.NO_CONTENT,No Content,Successful DELETE (nothing to return).
+     * 400,HttpStatus.BAD_REQUEST,Bad Request,Validation failed or invalid input.
+     * 401,HttpStatus.UNAUTHORIZED,Unauthorized,User is not logged in.
+     * 403,HttpStatus.FORBIDDEN,Forbidden,User is logged in but lacks permission.
+     * 404,HttpStatus.NOT_FOUND,Not Found,Resource doesn't exist.
+     * 500,HttpStatus.INTERNAL_SERVER_ERROR,Server Error,Uncaught exception/crash.
+     */
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
-    public ResponseEntity<APIError<Map<String, List<String>>>> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
+    public ResponseEntity<APIError<Map<String, List<String>>>> handleMethodArgumentNotValid(
+            MethodArgumentNotValidException ex) {
 
         // Grouping fields by name and collecting messages into a list
         Map<String, List<String>> errors = ex.getBindingResult().getFieldErrors()
                 .stream()
                 .collect(Collectors.groupingBy(
                         FieldError::getField,
-                        Collectors.mapping(FieldError::getDefaultMessage, Collectors.toList())
-                ));
+                        Collectors.mapping(FieldError::getDefaultMessage, Collectors.toList())));
 
         return ResponseEntity.badRequest().body(createApiError(errors));
     }
@@ -57,7 +56,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(value = HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<APIError<String>> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex) {
+    public ResponseEntity<APIError<String>> handleHttpRequestMethodNotSupported(
+            HttpRequestMethodNotSupportedException ex) {
         return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(createApiError(ex.getMessage()));
     }
 
@@ -85,7 +85,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<APIError<String>> handleHttpMessageNotReadable(HttpMessageNotReadableException err) {
         Throwable cause = err.getMostSpecificCause();
         if (cause instanceof DateTimeParseException) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createApiError(err.getMostSpecificCause().getMessage() + ". Use format: 'yyyy-MM-ddTHH:mm:ss'"));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    createApiError(err.getMostSpecificCause().getMessage() + ". Use format: 'yyyy-MM-ddTHH:mm:ss'"));
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(createApiError(err.getMessage()));
     }
@@ -99,7 +100,6 @@ public class GlobalExceptionHandler {
         return new APIError<>(
                 UUID.randomUUID().toString(),
                 LocalDateTime.now(),
-                errors
-        );
+                errors);
     }
 }

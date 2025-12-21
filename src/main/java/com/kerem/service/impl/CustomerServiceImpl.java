@@ -2,6 +2,7 @@ package com.kerem.service.impl;
 
 import com.kerem.dto.customerDto.CustomerDto;
 import com.kerem.dto.customerDto.CustomerDtoIU;
+import com.kerem.dto.customerDto.CustomerForReservationDto;
 import com.kerem.dto.reservationDto.ReservationForCustomerDto;
 import com.kerem.entities.Customer;
 import com.kerem.mapper.CustomerMapper;
@@ -48,8 +49,8 @@ public class CustomerServiceImpl implements ICustomerService {
 
     @Override
     public CustomerDto findCustomerBySsn(String ssn) {
-        Customer dbCust = customerRepository.findById(ssn).orElseThrow(()
-                -> new EntityNotFoundException("Customer with SSN " + ssn + " not found"));
+        Customer dbCust = customerRepository.findById(ssn)
+                .orElseThrow(() -> new EntityNotFoundException("Customer with SSN " + ssn + " not found"));
 
         CustomerDto customerDto = customerMapper.map(dbCust);
 
@@ -59,17 +60,18 @@ public class CustomerServiceImpl implements ICustomerService {
 
         return customerDto;
     }
+
     @Transactional
     @Override
-    public CustomerDto updateCustomer(String ssn, CustomerDtoIU customerDtoIU) {
+    public CustomerForReservationDto updateCustomer(String ssn, CustomerDtoIU customerDtoIU) {
 
-        Customer dbCustomer = customerRepository.findById(customerDtoIU.getSsn()).orElseThrow(()
-                -> new EntityNotFoundException("Customer not found! SSN:" + ssn));
+        Customer dbCustomer = customerRepository.findById(customerDtoIU.getSsn())
+                .orElseThrow(() -> new EntityNotFoundException("Customer not found! SSN:" + ssn));
 
         // update the fields of the dbCustomer
         customerMapper.map(customerDtoIU, dbCustomer);
 
-        return customerMapper.map(customerRepository.save(dbCustomer));
+        return customerMapper.mapToReservationDto(customerRepository.save(dbCustomer));
     }
 
     @Transactional
@@ -77,7 +79,9 @@ public class CustomerServiceImpl implements ICustomerService {
     public CustomerDto saveCustomer(CustomerDtoIU customerDtoIU) {
 
         if (customerRepository.existsById(customerDtoIU.getSsn())) {
-            throw new EntityExistsException("Customer already exists! You can update instead of creating new Customer! SSN:" + customerDtoIU.getSsn());
+            throw new EntityExistsException(
+                    "Customer already exists! You can update instead of creating new Customer! SSN:"
+                            + customerDtoIU.getSsn());
         }
 
         return customerMapper.map(customerRepository.save(customerMapper.map(customerDtoIU)));

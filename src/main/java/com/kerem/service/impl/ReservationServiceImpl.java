@@ -207,7 +207,11 @@ public class ReservationServiceImpl implements IReservationService {
     public ReservationDto getReservationByReservationNumber(String reservationNumber) {
         Reservation dbRes = reservationRepository.findById(reservationNumber).orElseThrow(
                 () -> new EntityNotFoundException("Reservation not found! ReservationNumber: " + reservationNumber));
-        return reservationMapper.map(dbRes);
+
+        ReservationDto reservationDto = reservationMapper.map(dbRes);
+        reservationDto.setTotalAmount(calculateTotalAmount(reservationDto));
+
+        return reservationDto;
     }
 
     private static Long calculateDaysInBetween(LocalDateTime startDate, LocalDateTime endDate) {

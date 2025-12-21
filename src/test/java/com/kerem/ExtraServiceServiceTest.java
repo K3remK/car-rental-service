@@ -50,7 +50,7 @@ public class ExtraServiceServiceTest {
         extraServiceRepository.save(ex1);
 
         // Act
-        List<ExtraServiceDto> all = extraServiceService.findAll();
+        List<ExtraServiceDto> all = extraServiceService.getAllExtraServices();
 
         // Assert
         Assertions.assertFalse(all.isEmpty());

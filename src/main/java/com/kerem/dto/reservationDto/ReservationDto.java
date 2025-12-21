@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.kerem.dto.carDto.CarDto;
 import com.kerem.dto.customerDto.CustomerForReservationDto;
 import com.kerem.dto.extraServiceDto.ExtraServiceDto;
-import com.kerem.entities.Location;
+import com.kerem.dto.locationDto.LocationDto;
 import com.kerem.entities.Reservation;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -31,9 +31,9 @@ public class ReservationDto {
 
     private Reservation.Status status;
 
-    private Location pickUpLocation;
+    private LocationDto pickUpLocation;
 
-    private Location dropOffLocation;
+    private LocationDto dropOffLocation;
 
     private Double totalAmount;
 
