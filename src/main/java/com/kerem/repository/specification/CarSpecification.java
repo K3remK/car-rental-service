@@ -23,9 +23,9 @@ public class CarSpecification {
 
     public static Specification<Car> hasTransmissionType(Car.TransmissionType transmissionType) {
         return ((root, query, criteriaBuilder) -> {
-            if (transmissionType == null) {
-                return null;
-            }
+                if (transmissionType == null) {
+                    return null;
+                }
             return criteriaBuilder.equal(root.get("transmissionType"), transmissionType);
         });
     }
